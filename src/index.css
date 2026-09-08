@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-navy-900 antialiased;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Fraunces', ui-serif, Georgia, serif;
+}
+
+/* Custom scrollbar — thin, navy-on-transparent track, gold on hover.
+   Webkit (Chrome/Edge/Safari) via ::-webkit-scrollbar; Firefox via the
+   scrollbar-* properties, which have no per-hover-state variant. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: theme('colors.navy.300');
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: theme('colors.gold.400');
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.navy.300') transparent;
+}
+
+/* Leaflet's own CSS sets very high z-index panes by default — this keeps
+   the map's controls from floating above our sticky navbar/modals. */
+.leaflet-container {
+  z-index: 0;
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

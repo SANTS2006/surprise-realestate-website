@@ -1,0 +1,124 @@
+import { Link } from 'react-router-dom';
+import { Target, Eye, HeartHandshake, Building2, Users, Award, MapPinned } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
+import { agents } from '../data/agents.js';
+
+const VALUES = [
+  { icon: Target, title: 'Our Mission', text: 'To make finding and managing a home in Freetown simple, transparent, and stress-free — for tenants and property owners alike.' },
+  { icon: Eye, title: 'Our Vision', text: 'To be the most trusted name in Sierra Leonean real estate, known for honesty, quality, and genuine care for our community.' },
+  { icon: HeartHandshake, title: 'Our Values', text: 'Integrity in every transaction, respect for every tenant, and a standard of quality we would want for our own families.' },
+];
+
+const TIMELINE = [
+  { year: '2017', text: 'Surprise Real Estate opens its doors with a single office on Siaka Stevens Street and a handful of managed properties.' },
+  { year: '2019', text: 'Portfolio grows past 50 properties across five neighborhoods; the property management division is formalized.' },
+  { year: '2022', text: 'Launch of our digital tenant and owner portal, bringing online rent payments and maintenance requests to every managed property.' },
+  { year: '2026', text: 'Now managing 180+ properties across ten neighborhoods, with a dedicated team of consultants and support staff.' },
+];
+
+const STATS = [
+  { icon: Building2, value: '180+', label: 'Properties managed' },
+  { icon: Users, value: '650+', label: 'Happy tenants' },
+  { icon: Award, value: '9', label: 'Years in business' },
+  { icon: MapPinned, value: '10', label: 'Neighborhoods' },
+];
+
+export default function About() {
+  useDocumentTitle('About Us');
+
+  return (
+    <div className="bg-white pb-20 pt-28">
+      <section className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <p className="text-sm font-semibold uppercase tracking-wide text-gold-600">About us</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-navy-900 sm:text-5xl">
+            Real estate, done the right way.
+          </h1>
+          <p className="mt-5 text-lg leading-relaxed text-navy-500">
+            Surprise Real Estate has been helping people find homes and helping owners manage their properties across Freetown since 2017. We believe renting a home shouldn't be complicated — so we've built our business around transparency, verified listings, and genuine service.
+          </p>
+        </ScrollReveal>
+      </section>
+
+      <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="overflow-hidden rounded-3xl">
+            <img
+              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=2000&q=80"
+              alt="Our office team"
+              className="h-[380px] w-full object-cover"
+            />
+          </div>
+        </ScrollReveal>
+      </section>
+
+      <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {VALUES.map((v) => (
+            <StaggerItem key={v.title} className="rounded-2xl bg-navy-50 p-7">
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-navy-900 text-gold-400">
+                <v.icon size={22} aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 font-display text-lg font-semibold text-navy-900">{v.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-navy-600">{v.text}</p>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </section>
+
+      <section className="mx-auto mt-20 max-w-4xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-wide text-gold-600">Our journey</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold text-navy-900">How we got here</h2>
+        </ScrollReveal>
+
+        <div className="mt-12 flex flex-col gap-8 border-l-2 border-navy-100 pl-8">
+          {TIMELINE.map((t, i) => (
+            <ScrollReveal key={t.year} delay={i * 0.05} className="relative">
+              <span className="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-gold-400 bg-white" />
+              <p className="font-display text-lg font-semibold text-navy-900">{t.year}</p>
+              <p className="mt-1 text-sm leading-relaxed text-navy-600">{t.text}</p>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-navy-950 px-6 py-14 sm:px-14">
+          <StaggerGroup className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            {STATS.map((s) => (
+              <StaggerItem key={s.label} className="text-center">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-gold-400">
+                  <s.icon size={22} aria-hidden="true" />
+                </span>
+                <p className="mt-3 font-display text-3xl font-semibold text-white">{s.value}</p>
+                <p className="mt-1 text-sm text-navy-300">{s.label}</p>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </div>
+      </section>
+
+      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-gold-600">Meet the team</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-navy-900">The people behind Surprise Real Estate</h2>
+          </div>
+          <Link to="/agents" className="text-sm font-semibold text-navy-700 hover:text-navy-900">Meet all agents →</Link>
+        </ScrollReveal>
+
+        <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {agents.slice(0, 4).map((a) => (
+            <StaggerItem key={a.name} className="text-center">
+              <img src={a.photo} alt={a.name} className="mx-auto h-32 w-32 rounded-full object-cover shadow-card" />
+              <p className="mt-4 font-display text-base font-semibold text-navy-900">{a.name}</p>
+              <p className="text-sm text-navy-500">{a.role}</p>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </section>
+    </div>
+  );
+}
