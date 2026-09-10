@@ -1,10 +1,18 @@
-import { Phone, Mail } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Phone, Mail, User } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
-import { agents } from '../data/agents.js';
+import { listingsApi } from '../api/listings.js';
+import { LoadingState } from '../components/LoadingState.jsx';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
 
 export default function Agents() {
   useDocumentTitle('Our Agents');
+  const [agents, setAgents] = useState(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    listingsApi.agents().then((res) => setAgents(res.data)).catch(() => setError(true));
+  }, []);
 
   return (
     <div className="bg-white pb-20 pt-28">
@@ -19,28 +27,42 @@ export default function Agents() {
       </section>
 
       <section className="mx-auto mt-14 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <StaggerGroup className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {agents.map((a) => (
-            <StaggerItem key={a.name}>
-              <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-navy-100">
-                <img src={a.photo} alt={a.name} className="aspect-[4/5] w-full object-cover" />
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <p className="font-display text-lg font-semibold text-navy-900">{a.name}</p>
-                  <p className="text-sm font-medium text-gold-600">{a.role}</p>
-                  <p className="mt-1 flex-1 text-sm leading-relaxed text-navy-500">{a.bio}</p>
-                  <div className="mt-3 flex flex-col gap-1.5 border-t border-navy-100 pt-3 text-sm text-navy-600">
-                    <a href={`tel:${a.phone}`} className="flex items-center gap-2 hover:text-navy-900">
-                      <Phone size={14} aria-hidden="true" /> {a.phone}
-                    </a>
-                    <a href={`mailto:${a.email}`} className="flex items-center gap-2 truncate hover:text-navy-900">
-                      <Mail size={14} className="shrink-0" aria-hidden="true" /> <span className="truncate">{a.email}</span>
-                    </a>
+        {error && <p className="text-center text-sm text-rose-600">Couldn't load our team right now — please try again shortly.</p>}
+        {!error && agents === null && <LoadingState label="Loading our team…" />}
+        {!error && agents?.length === 0 && (
+          <p className="rounded-2xl bg-navy-50 px-6 py-10 text-center text-sm text-navy-500">
+            Our agent roster is being updated — check back soon.
+          </p>
+        )}
+        {!error && agents && agents.length > 0 && (
+          <StaggerGroup className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {agents.map((a) => (
+              <StaggerItem key={a.id}>
+                <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-navy-100">
+                  {a.photo ? (
+                    <img src={a.photo} alt={a.name} className="aspect-[4/5] w-full object-cover" />
+                  ) : (
+                    <div className="flex aspect-[4/5] w-full items-center justify-center bg-navy-50">
+                      <User size={40} className="text-navy-300" aria-hidden="true" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col gap-2 p-5">
+                    <p className="font-display text-lg font-semibold text-navy-900">{a.name}</p>
+                    <p className="text-sm font-medium text-gold-600">Agent</p>
+                    <div className="mt-3 flex flex-col gap-1.5 border-t border-navy-100 pt-3 text-sm text-navy-600">
+                      <a href={`tel:${a.phone}`} className="flex items-center gap-2 hover:text-navy-900">
+                        <Phone size={14} aria-hidden="true" /> {a.phone}
+                      </a>
+                      <a href={`mailto:${a.email}`} className="flex items-center gap-2 truncate hover:text-navy-900">
+                        <Mail size={14} className="shrink-0" aria-hidden="true" /> <span className="truncate">{a.email}</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        )}
       </section>
     </div>
   );

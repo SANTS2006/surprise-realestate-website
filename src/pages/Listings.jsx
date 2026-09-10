@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LayoutGrid, MapIcon, SlidersHorizontal, X, SearchX } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
-import { listings, NEIGHBORHOODS, PROPERTY_TYPES } from '../data/listings.js';
+import { listingsApi } from '../api/listings.js';
 import { PropertyCard } from '../components/PropertyCard.jsx';
 import { MapView } from '../components/MapView.jsx';
+import { LoadingState } from '../components/LoadingState.jsx';
 import { StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 const SORTS = [
   { value: 'newest', label: 'Newest first' },
@@ -15,21 +17,21 @@ const SORTS = [
 
 // Declared at module scope (not inside Listings) so it isn't re-created —
 // and every filter input's focus/state reset — on every render.
-function FilterControls({ neighborhood, type, maxPrice, minBeds, activeFilterCount, setFilter, clearFilters }) {
+function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTypes, activeFilterCount, setFilter, clearFilters }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
         <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Neighborhood</label>
         <select value={neighborhood} onChange={(e) => setFilter('neighborhood', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">All neighborhoods</option>
-          {NEIGHBORHOODS.map((n) => <option key={n} value={n}>{n}</option>)}
+          {cities.map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </div>
       <div>
         <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Property type</label>
         <select value={type} onChange={(e) => setFilter('type', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">All types</option>
-          {PROPERTY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          {unitTypes.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       <div>
@@ -65,6 +67,12 @@ export default function Listings() {
   const [view, setView] = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const [listings, setListings] = useState(null);
+  const [meta, setMeta] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 1 });
+  const [filterOptions, setFilterOptions] = useState({ cities: [], unitTypes: [] });
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+
   const neighborhood = searchParams.get('neighborhood') ?? '';
   const type = searchParams.get('type') ?? '';
   const maxPrice = searchParams.get('maxPrice') ?? '';
@@ -75,25 +83,26 @@ export default function Listings() {
     const next = new URLSearchParams(searchParams);
     if (value) next.set(key, value); else next.delete(key);
     setSearchParams(next, { replace: true });
+    setPage(1);
   };
 
-  const clearFilters = () => setSearchParams({}, { replace: true });
+  const clearFilters = () => { setSearchParams({}, { replace: true }); setPage(1); };
 
-  const filtered = useMemo(() => {
-    let rows = listings.filter((l) => {
-      if (neighborhood && l.neighborhood !== neighborhood) return false;
-      if (type && l.type !== type) return false;
-      if (maxPrice && l.price > Number(maxPrice)) return false;
-      if (minBeds && l.bedrooms < Number(minBeds)) return false;
-      return true;
-    });
-    if (sort === 'price-asc') rows = [...rows].sort((a, b) => a.price - b.price);
-    if (sort === 'price-desc') rows = [...rows].sort((a, b) => b.price - a.price);
-    return rows;
-  }, [neighborhood, type, maxPrice, minBeds, sort]);
+  useEffect(() => {
+    listingsApi.filterOptions().then((res) => setFilterOptions(res.data)).catch(() => {});
+  }, []);
+
+  const load = useCallback(() => {
+    setError(null);
+    listingsApi.list({ page, pageSize: 21, neighborhood, type, maxPrice, minBeds, sort })
+      .then((res) => { setListings(res.data); setMeta(res.meta); })
+      .catch((err) => setError(err.message));
+  }, [page, neighborhood, type, maxPrice, minBeds, sort]);
+
+  useEffect(() => { load(); }, [load]);
 
   const activeFilterCount = [neighborhood, type, maxPrice, minBeds].filter(Boolean).length;
-  const filterProps = { neighborhood, type, maxPrice, minBeds, activeFilterCount, setFilter, clearFilters };
+  const filterProps = { neighborhood, type, maxPrice, minBeds, cities: filterOptions.cities, unitTypes: filterOptions.unitTypes, activeFilterCount, setFilter, clearFilters };
 
   return (
     <div className="bg-navy-50/40 pb-20 pt-28">
@@ -102,7 +111,7 @@ export default function Listings() {
           <h1 className="font-display text-3xl font-semibold text-navy-900 sm:text-4xl">
             {neighborhood ? `Listings in ${neighborhood}` : 'All listings'}
           </h1>
-          <p className="text-sm text-navy-500">{filtered.length} {filtered.length === 1 ? 'property' : 'properties'} available</p>
+          <p className="text-sm text-navy-500">{meta.total} {meta.total === 1 ? 'property' : 'properties'} available</p>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr]">
@@ -146,25 +155,42 @@ export default function Listings() {
 
             {/* Results */}
             <div className="mt-6">
-              {filtered.length === 0 ? (
+              {error && (
+                <div className="rounded-2xl bg-white py-16 text-center shadow-card ring-1 ring-navy-100">
+                  <p className="text-sm text-rose-600">{error}</p>
+                </div>
+              )}
+              {!error && listings === null && <LoadingState label="Loading listings…" />}
+              {!error && listings?.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-2xl bg-white py-20 text-center shadow-card ring-1 ring-navy-100">
                   <SearchX size={32} className="text-navy-300" aria-hidden="true" />
-                  <p className="font-display text-lg font-semibold text-navy-900">No listings match your filters</p>
-                  <p className="text-sm text-navy-500">Try widening your search or clearing a filter.</p>
-                  <button type="button" onClick={clearFilters} className="mt-2 rounded-full bg-navy-900 px-5 py-2 text-sm font-semibold text-white hover:bg-navy-800">
-                    Clear filters
-                  </button>
+                  <p className="font-display text-lg font-semibold text-navy-900">
+                    {activeFilterCount > 0 ? 'No listings match your filters' : 'No listings are available just yet'}
+                  </p>
+                  <p className="text-sm text-navy-500">
+                    {activeFilterCount > 0 ? 'Try widening your search or clearing a filter.' : 'Check back soon — new listings go up regularly.'}
+                  </p>
+                  {activeFilterCount > 0 && (
+                    <button type="button" onClick={clearFilters} className="mt-2 rounded-full bg-navy-900 px-5 py-2 text-sm font-semibold text-white hover:bg-navy-800">
+                      Clear filters
+                    </button>
+                  )}
                 </div>
-              ) : view === 'grid' ? (
-                <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {filtered.map((listing) => (
-                    <StaggerItem key={listing.id}>
-                      <PropertyCard listing={listing} />
-                    </StaggerItem>
-                  ))}
-                </StaggerGroup>
-              ) : (
-                <MapView listings={filtered} height={600} className="overflow-hidden rounded-2xl shadow-card ring-1 ring-navy-100" />
+              ) : null}
+              {!error && listings && listings.length > 0 && view === 'grid' && (
+                <>
+                  <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {listings.map((listing) => (
+                      <StaggerItem key={listing.id}>
+                        <PropertyCard listing={listing} />
+                      </StaggerItem>
+                    ))}
+                  </StaggerGroup>
+                  <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+                </>
+              )}
+              {!error && listings && listings.length > 0 && view === 'map' && (
+                <MapView listings={listings} height={600} className="overflow-hidden rounded-2xl shadow-card ring-1 ring-navy-100" />
               )}
             </div>
           </div>
@@ -190,7 +216,7 @@ export default function Listings() {
             onClick={() => setFiltersOpen(false)}
             className="mt-6 w-full rounded-full bg-navy-900 py-2.5 text-sm font-semibold text-white"
           >
-            Show {filtered.length} results
+            Show {meta.total} results
           </button>
         </div>
       </div>

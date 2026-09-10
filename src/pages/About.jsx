@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Target, Eye, HeartHandshake, Building2, Users, Award, MapPinned } from 'lucide-react';
+import { Target, Eye, HeartHandshake, Building2, Users, Award, MapPinned, User } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { listingsApi } from '../api/listings.js';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
-import { agents } from '../data/agents.js';
 
 const VALUES = [
   { icon: Target, title: 'Our Mission', text: 'To make finding and managing a home in Freetown simple, transparent, and stress-free — for tenants and property owners alike.' },
@@ -26,6 +27,11 @@ const STATS = [
 
 export default function About() {
   useDocumentTitle('About Us');
+  const [agents, setAgents] = useState([]);
+
+  useEffect(() => {
+    listingsApi.agents().then((res) => setAgents(res.data)).catch(() => {});
+  }, []);
 
   return (
     <div className="bg-white pb-20 pt-28">
@@ -100,25 +106,32 @@ export default function About() {
         </div>
       </section>
 
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <ScrollReveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-gold-600">Meet the team</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold text-navy-900">The people behind Surprise Real Estate</h2>
-          </div>
-          <Link to="/agents" className="text-sm font-semibold text-navy-700 hover:text-navy-900">Meet all agents →</Link>
-        </ScrollReveal>
+      {agents.length > 0 && (
+        <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ScrollReveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-gold-600">Meet the team</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold text-navy-900">The people behind Surprise Real Estate</h2>
+            </div>
+            <Link to="/agents" className="text-sm font-semibold text-navy-700 hover:text-navy-900">Meet all agents →</Link>
+          </ScrollReveal>
 
-        <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {agents.slice(0, 4).map((a) => (
-            <StaggerItem key={a.name} className="text-center">
-              <img src={a.photo} alt={a.name} className="mx-auto h-32 w-32 rounded-full object-cover shadow-card" />
-              <p className="mt-4 font-display text-base font-semibold text-navy-900">{a.name}</p>
-              <p className="text-sm text-navy-500">{a.role}</p>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-      </section>
+          <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {agents.slice(0, 4).map((a) => (
+              <StaggerItem key={a.id} className="text-center">
+                {a.photo ? (
+                  <img src={a.photo} alt={a.name} className="mx-auto h-32 w-32 rounded-full object-cover shadow-card" />
+                ) : (
+                  <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-navy-50 shadow-card">
+                    <User size={40} className="text-navy-300" aria-hidden="true" />
+                  </div>
+                )}
+                <p className="mt-4 font-display text-base font-semibold text-navy-900">{a.name}</p>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </section>
+      )}
     </div>
   );
 }

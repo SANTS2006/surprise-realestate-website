@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Link } from 'react-router-dom';
+import { MapPinOff } from 'lucide-react';
 import { formatCurrency } from '../utils/format.js';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -47,11 +48,28 @@ function MapController({ center, zoom, bounds }) {
 
 // `listings`: array of {id, title, price, lat, lng} for multi-pin browse
 // mode. `single`: one {lat, lng, title} for a property-detail pin. Exactly
-// one of the two is expected.
+// one of the two is expected. Real listings can have no coordinates yet
+// (a staff member hasn't set them on the property) — those are filtered out
+// here rather than plotted at (0,0) or crashing Leaflet's bounds-fitting.
 export function MapView({ listings, single, height = 420, className }) {
-  const points = listings ?? (single ? [single] : []);
+  const all = listings ?? (single ? [single] : []);
+  const points = all.filter((p) => typeof p.lat === 'number' && typeof p.lng === 'number');
+
+  if (points.length === 0) {
+    return (
+      <div className={className} style={{ height }}>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-navy-50 text-center">
+          <MapPinOff size={28} className="text-navy-300" aria-hidden="true" />
+          <p className="text-sm text-navy-500">
+            {listings ? 'None of the current listings have a map location set yet.' : "This listing's exact location hasn't been set yet."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const bounds = points.length > 1 ? points.map((p) => [p.lat, p.lng]) : null;
-  const center = points.length === 1 ? [points[0].lat, points[0].lng] : [8.4657, -13.2317];
+  const center = [points[0].lat, points[0].lng];
   const zoom = points.length === 1 ? 15 : 12;
 
   return (

@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import {
   BedDouble, Bath, Ruler, MapPin, Calendar, Phone, Mail, Check,
-  ChevronLeft, ChevronRight, ArrowLeft,
+  ChevronLeft, ChevronRight, ArrowLeft, Home,
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
-import { getListingById, listings } from '../data/listings.js';
+import { listingsApi } from '../api/listings.js';
 import { formatCurrency, formatArea } from '../utils/format.js';
 import { MapView } from '../components/MapView.jsx';
+import { LoadingState } from '../components/LoadingState.jsx';
 import { PropertyCard } from '../components/PropertyCard.jsx';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
 
 function Gallery({ images, title }) {
   const [active, setActive] = useState(0);
+
+  if (images.length === 0) {
+    return (
+      <div className="flex aspect-[16/10] w-full items-center justify-center rounded-2xl bg-navy-100">
+        <Home size={48} className="text-navy-300" aria-hidden="true" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-navy-100">
@@ -60,18 +70,36 @@ function Gallery({ images, title }) {
 }
 
 function InquiryForm({ listing }) {
-  const [submitted, setSubmitted] = useState(false);
-  const onSubmit = (e) => {
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '', phone: '',
+    message: `Hi, I'm interested in ${listing.title}. Is it still available?`,
+  });
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [error, setError] = useState('');
+
+  const onChange = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setStatus('sending');
+    setError('');
+    try {
+      await listingsApi.inquire(listing.id, form);
+      setStatus('sent');
+    } catch (err) {
+      setStatus('error');
+      setError(err.message);
+    }
   };
 
-  if (submitted) {
+  if (status === 'sent') {
     return (
       <div className="flex flex-col items-center gap-2 rounded-2xl bg-navy-50 p-6 text-center">
         <Check size={28} className="text-navy-700" aria-hidden="true" />
         <p className="font-display text-base font-semibold text-navy-900">Thanks — we'll be in touch shortly.</p>
-        <p className="text-sm text-navy-500">{listing.agent.name} usually responds within a few hours.</p>
+        <p className="text-sm text-navy-500">
+          {listing.agent ? `${listing.agent.name} usually responds within a few hours.` : "Our team usually responds within a few hours."}
+        </p>
       </div>
     );
   }
@@ -79,18 +107,21 @@ function InquiryForm({ listing }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3">
-        <input required placeholder="First name" className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
-        <input required placeholder="Last name" className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+        <input required placeholder="First name" value={form.firstName} onChange={onChange('firstName')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+        <input required placeholder="Last name" value={form.lastName} onChange={onChange('lastName')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
       </div>
-      <input required type="email" placeholder="Email address" className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
-      <input required type="tel" placeholder="Phone number" className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+      <input required type="email" placeholder="Email address" value={form.email} onChange={onChange('email')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+      <input required type="tel" placeholder="Phone number" value={form.phone} onChange={onChange('phone')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
       <textarea
+        required
         rows={3}
-        defaultValue={`Hi, I'm interested in ${listing.title}. Is it still available?`}
+        value={form.message}
+        onChange={onChange('message')}
         className="rounded-lg border border-navy-200 px-3 py-2 text-sm focus:border-navy-400 focus:outline-none"
       />
-      <button type="submit" className="mt-1 rounded-full bg-navy-900 py-2.5 text-sm font-semibold text-white hover:bg-navy-800">
-        Request a viewing
+      {status === 'error' && <p className="text-sm text-rose-600">{error}</p>}
+      <button type="submit" disabled={status === 'sending'} className="mt-1 rounded-full bg-navy-900 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60">
+        {status === 'sending' ? 'Sending…' : 'Request a viewing'}
       </button>
     </form>
   );
@@ -98,12 +129,28 @@ function InquiryForm({ listing }) {
 
 export default function PropertyDetail() {
   const { id } = useParams();
-  const listing = getListingById(id);
-  useDocumentTitle(listing ? listing.title : 'Listing not found');
+  const [listing, setListing] = useState(null);
+  const [notFound, setNotFound] = useState(false);
+  const [similar, setSimilar] = useState([]);
 
-  if (!listing) return <Navigate to="/listings" replace />;
+  useDocumentTitle(listing ? listing.title : 'Listing');
 
-  const similar = listings.filter((l) => l.id !== listing.id && l.neighborhood === listing.neighborhood).slice(0, 3);
+  useEffect(() => {
+    setListing(null);
+    setNotFound(false);
+    listingsApi.get(id)
+      .then((res) => {
+        setListing(res.data);
+        return listingsApi.list({ neighborhood: res.data.city, pageSize: 4 }).catch(() => null);
+      })
+      .then((similarRes) => {
+        if (similarRes) setSimilar(similarRes.data.filter((l) => l.id !== id).slice(0, 3));
+      })
+      .catch(() => setNotFound(true));
+  }, [id]);
+
+  if (notFound) return <Navigate to="/listings" replace />;
+  if (!listing) return <div className="pb-20 pt-28"><LoadingState label="Loading listing…" /></div>;
 
   return (
     <div className="bg-white pb-20 pt-28">
@@ -116,14 +163,15 @@ export default function PropertyDetail() {
         <ScrollReveal className="mt-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-navy-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">{listing.type}</span>
-              {listing.featured && <span className="rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy-900">Featured</span>}
+              {listing.type && <span className="rounded-full bg-navy-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">{listing.type}</span>}
             </div>
             <h1 className="mt-3 font-display text-3xl font-semibold text-navy-900 sm:text-4xl">{listing.title}</h1>
-            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-navy-500">
-              <MapPin size={15} aria-hidden="true" />
-              {listing.address}
-            </p>
+            {listing.address && (
+              <p className="mt-1.5 flex items-center gap-1.5 text-sm text-navy-500">
+                <MapPin size={15} aria-hidden="true" />
+                {listing.address}
+              </p>
+            )}
           </div>
           <p className="font-display text-3xl font-semibold text-navy-900 sm:text-right">
             {formatCurrency(listing.price, { rounded: true })}
@@ -149,39 +197,47 @@ export default function PropertyDetail() {
                   <Bath size={20} className="text-navy-500" aria-hidden="true" />
                   <div><p className="font-semibold text-navy-900">{listing.bathrooms}</p><p className="text-xs text-navy-500">Bathrooms</p></div>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <Ruler size={20} className="text-navy-500" aria-hidden="true" />
-                  <div><p className="font-semibold text-navy-900">{formatArea(listing.area)}</p><p className="text-xs text-navy-500">Floor area</p></div>
-                </div>
+                {listing.area != null && (
+                  <div className="flex items-center gap-2.5">
+                    <Ruler size={20} className="text-navy-500" aria-hidden="true" />
+                    <div><p className="font-semibold text-navy-900">{formatArea(listing.area)}</p><p className="text-xs text-navy-500">Floor area</p></div>
+                  </div>
+                )}
               </div>
             </ScrollReveal>
 
-            <ScrollReveal>
-              <h2 className="font-display text-xl font-semibold text-navy-900">About this property</h2>
-              <p className="mt-3 leading-relaxed text-navy-600">{listing.description}</p>
-              <p className="mt-3 flex items-center gap-1.5 text-sm text-navy-500">
-                <Calendar size={15} aria-hidden="true" />
-                Built in {listing.yearBuilt}
-              </p>
-            </ScrollReveal>
+            {listing.description && (
+              <ScrollReveal>
+                <h2 className="font-display text-xl font-semibold text-navy-900">About this property</h2>
+                <p className="mt-3 leading-relaxed text-navy-600">{listing.description}</p>
+                {listing.yearBuilt && (
+                  <p className="mt-3 flex items-center gap-1.5 text-sm text-navy-500">
+                    <Calendar size={15} aria-hidden="true" />
+                    Built in {listing.yearBuilt}
+                  </p>
+                )}
+              </ScrollReveal>
+            )}
 
-            <ScrollReveal>
-              <h2 className="font-display text-xl font-semibold text-navy-900">Amenities</h2>
-              <StaggerGroup className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {listing.amenities.map((a) => (
-                  <StaggerItem key={a} className="flex items-center gap-2.5 text-sm text-navy-700">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-900/5 text-navy-700">
-                      <Check size={13} aria-hidden="true" />
-                    </span>
-                    {a}
-                  </StaggerItem>
-                ))}
-              </StaggerGroup>
-            </ScrollReveal>
+            {listing.amenities.length > 0 && (
+              <ScrollReveal>
+                <h2 className="font-display text-xl font-semibold text-navy-900">Amenities</h2>
+                <StaggerGroup className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {listing.amenities.map((a) => (
+                    <StaggerItem key={a} className="flex items-center gap-2.5 text-sm text-navy-700">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-900/5 text-navy-700">
+                        <Check size={13} aria-hidden="true" />
+                      </span>
+                      {a}
+                    </StaggerItem>
+                  ))}
+                </StaggerGroup>
+              </ScrollReveal>
+            )}
 
             <ScrollReveal>
               <h2 className="font-display text-xl font-semibold text-navy-900">Location</h2>
-              <p className="mt-1 text-sm text-navy-500">{listing.address}</p>
+              {listing.address && <p className="mt-1 text-sm text-navy-500">{listing.address}</p>}
               <div className="mt-4">
                 <MapView single={{ lat: listing.lat, lng: listing.lng, title: listing.title }} height={360} className="overflow-hidden rounded-2xl ring-1 ring-navy-100" />
               </div>
@@ -191,17 +247,21 @@ export default function PropertyDetail() {
           {/* Sidebar */}
           <div className="flex flex-col gap-6">
             <ScrollReveal className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-navy-100">
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy-400">Listing agent</p>
-              <p className="mt-2 font-display text-lg font-semibold text-navy-900">{listing.agent.name}</p>
-              <div className="mt-3 flex flex-col gap-2 text-sm text-navy-600">
-                <a href={`tel:${listing.agent.phone}`} className="flex items-center gap-2 hover:text-navy-900">
-                  <Phone size={15} aria-hidden="true" /> {listing.agent.phone}
-                </a>
-                <a href={`mailto:${listing.agent.email}`} className="flex items-center gap-2 hover:text-navy-900">
-                  <Mail size={15} aria-hidden="true" /> {listing.agent.email}
-                </a>
-              </div>
-              <div className="mt-5 border-t border-navy-100 pt-5">
+              {listing.agent && (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-navy-400">Listing agent</p>
+                  <p className="mt-2 font-display text-lg font-semibold text-navy-900">{listing.agent.name}</p>
+                  <div className="mt-3 flex flex-col gap-2 text-sm text-navy-600">
+                    <a href={`tel:${listing.agent.phone}`} className="flex items-center gap-2 hover:text-navy-900">
+                      <Phone size={15} aria-hidden="true" /> {listing.agent.phone}
+                    </a>
+                    <a href={`mailto:${listing.agent.email}`} className="flex items-center gap-2 hover:text-navy-900">
+                      <Mail size={15} aria-hidden="true" /> {listing.agent.email}
+                    </a>
+                  </div>
+                </>
+              )}
+              <div className={listing.agent ? 'mt-5 border-t border-navy-100 pt-5' : ''}>
                 <InquiryForm listing={listing} />
               </div>
             </ScrollReveal>
@@ -211,7 +271,7 @@ export default function PropertyDetail() {
         {similar.length > 0 && (
           <div className="mt-16">
             <ScrollReveal>
-              <h2 className="font-display text-2xl font-semibold text-navy-900">More in {listing.neighborhood}</h2>
+              <h2 className="font-display text-2xl font-semibold text-navy-900">More in {listing.city}</h2>
             </ScrollReveal>
             <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
               {similar.map((l) => (

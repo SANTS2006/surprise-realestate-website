@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Check } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { listingsApi } from '../api/listings.js';
 import { MapView } from '../components/MapView.jsx';
 import { ScrollReveal } from '../components/ScrollReveal.jsx';
 
@@ -8,11 +9,23 @@ const OFFICE = { lat: 8.4840, lng: -13.2299, title: 'Surprise Real Estate — He
 
 export default function Contact() {
   useDocumentTitle('Contact Us');
-  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [error, setError] = useState('');
 
-  const onSubmit = (e) => {
+  const onChange = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setStatus('sending');
+    setError('');
+    try {
+      await listingsApi.contact(form);
+      setStatus('sent');
+    } catch (err) {
+      setStatus('error');
+      setError(err.message);
+    }
   };
 
   return (
@@ -31,7 +44,7 @@ export default function Contact() {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           <ScrollReveal>
             <div className="rounded-2xl bg-navy-50 p-6 sm:p-8">
-              {submitted ? (
+              {status === 'sent' ? (
                 <div className="flex flex-col items-center gap-3 py-10 text-center">
                   <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy-900 text-gold-400">
                     <Check size={26} aria-hidden="true" />
@@ -44,27 +57,28 @@ export default function Contact() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="text-sm font-medium text-navy-700">First name</label>
-                      <input required className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
+                      <input required value={form.firstName} onChange={onChange('firstName')} className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-navy-700">Last name</label>
-                      <input required className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
+                      <input required value={form.lastName} onChange={onChange('lastName')} className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-navy-700">Email address</label>
-                    <input required type="email" className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
+                    <input required type="email" value={form.email} onChange={onChange('email')} className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-navy-700">Phone number</label>
-                    <input required type="tel" className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
+                    <input required type="tel" value={form.phone} onChange={onChange('phone')} className="mt-1.5 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm focus:border-navy-400 focus:outline-none" />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-navy-700">How can we help?</label>
-                    <textarea required rows={4} className="mt-1.5 w-full rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm focus:border-navy-400 focus:outline-none" />
+                    <textarea required rows={4} value={form.message} onChange={onChange('message')} className="mt-1.5 w-full rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm focus:border-navy-400 focus:outline-none" />
                   </div>
-                  <button type="submit" className="mt-1 rounded-full bg-navy-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800">
-                    Send message
+                  {status === 'error' && <p className="text-sm text-rose-600">{error}</p>}
+                  <button type="submit" disabled={status === 'sending'} className="mt-1 rounded-full bg-navy-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800 disabled:opacity-60">
+                    {status === 'sending' ? 'Sending…' : 'Send message'}
                   </button>
                 </form>
               )}
