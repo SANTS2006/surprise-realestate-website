@@ -12,6 +12,10 @@ const About = lazy(() => import('./pages/About.jsx'));
 const Agents = lazy(() => import('./pages/Agents.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const FAQ = lazy(() => import('./pages/FAQ.jsx'));
+const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy.jsx'));
+const Terms = lazy(() => import('./pages/legal/Terms.jsx'));
+const PaymentPolicy = lazy(() => import('./pages/legal/PaymentPolicy.jsx'));
+const CookiePolicy = lazy(() => import('./pages/legal/CookiePolicy.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 function PageFallback() {
@@ -41,6 +45,10 @@ export default function App() {
         <Route path="/agents" element={<Lazy Component={Agents} />} />
         <Route path="/contact" element={<Lazy Component={Contact} />} />
         <Route path="/faq" element={<Lazy Component={FAQ} />} />
+        <Route path="/privacy-policy" element={<Lazy Component={PrivacyPolicy} />} />
+        <Route path="/terms" element={<Lazy Component={Terms} />} />
+        <Route path="/payment-policy" element={<Lazy Component={PaymentPolicy} />} />
+        <Route path="/cookie-policy" element={<Lazy Component={CookiePolicy} />} />
         <Route path="*" element={<Lazy Component={NotFound} />} />
       </Route>
     </Routes>

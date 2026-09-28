@@ -6,32 +6,39 @@ import { listingsApi } from '../api/listings.js';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
 
 const VALUES = [
-  { icon: Target, title: 'Our Mission', text: 'To make finding and managing a home in Freetown simple, transparent, and stress-free — for tenants and property owners alike.' },
+  { icon: Target, title: 'Our Mission', text: 'To make finding and managing a home simple, transparent, and stress-free — for tenants and property owners alike.' },
   { icon: Eye, title: 'Our Vision', text: 'To be the most trusted name in Sierra Leonean real estate, known for honesty, quality, and genuine care for our community.' },
   { icon: HeartHandshake, title: 'Our Values', text: 'Integrity in every transaction, respect for every tenant, and a standard of quality we would want for our own families.' },
 ];
 
-const TIMELINE = [
-  { year: '2017', text: 'Surprise Real Estate opens its doors with a single office on Siaka Stevens Street and a handful of managed properties.' },
-  { year: '2019', text: 'Portfolio grows past 50 properties across five neighborhoods; the property management division is formalized.' },
-  { year: '2022', text: 'Launch of our digital tenant and owner portal, bringing online rent payments and maintenance requests to every managed property.' },
-  { year: '2026', text: 'Now managing 180+ properties across ten neighborhoods, with a dedicated team of consultants and support staff.' },
-];
+// Founded this year — see the "Our journey" and stats sections below, which
+// both derive from this rather than repeating the year as a magic number.
+const FOUNDING_YEAR = 2026;
 
-const STATS = [
-  { icon: Building2, value: '180+', label: 'Properties managed' },
-  { icon: Users, value: '650+', label: 'Happy tenants' },
-  { icon: Award, value: '9', label: 'Years in business' },
-  { icon: MapPinned, value: '10', label: 'Neighborhoods' },
+const TIMELINE = [
+  { year: String(FOUNDING_YEAR), text: 'Surprise Real Estate is founded, with our digital tenant and owner portal and this public listings site built and launched from day one.' },
+  { year: String(FOUNDING_YEAR), text: 'We open our doors at Central University, Mile 91, and begin onboarding our first managed properties and tenants.' },
 ];
 
 export default function About() {
   useDocumentTitle('About Us');
   const [agents, setAgents] = useState([]);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     listingsApi.agents().then((res) => setAgents(res.data)).catch(() => {});
+    listingsApi.stats().then((res) => setStats(res.data)).catch(() => {});
   }, []);
+
+  const yearsInBusiness = Math.max(1, new Date().getFullYear() - FOUNDING_YEAR + 1);
+  // No "+" suffix — these are the real, current counts, not rounded-down
+  // marketing figures.
+  const STATS = stats && [
+    { icon: Building2, value: String(stats.totalProperties), label: 'Properties managed' },
+    { icon: Users, value: String(stats.tenants), label: 'Happy tenants' },
+    { icon: Award, value: String(yearsInBusiness), label: 'Years in business' },
+    { icon: MapPinned, value: String(stats.neighborhoods), label: 'Neighborhoods' },
+  ];
 
   return (
     <div className="bg-white pb-20 pt-28">
@@ -42,7 +49,7 @@ export default function About() {
             Real estate, done the right way.
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-navy-500">
-            Surprise Real Estate has been helping people find homes and helping owners manage their properties across Freetown since 2017. We believe renting a home shouldn't be complicated — so we've built our business around transparency, verified listings, and genuine service.
+            Surprise Real Estate helps people find homes and helps owners manage their properties, from our office at Central University, Mile 91. We believe renting a home shouldn't be complicated — so we've built our business around transparency, verified listings, and genuine service.
           </p>
         </ScrollReveal>
       </section>
@@ -81,7 +88,7 @@ export default function About() {
 
         <div className="mt-12 flex flex-col gap-8 border-l-2 border-navy-100 pl-8">
           {TIMELINE.map((t, i) => (
-            <ScrollReveal key={t.year} delay={i * 0.05} className="relative">
+            <ScrollReveal key={t.text} delay={i * 0.05} className="relative">
               <span className="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-gold-400 bg-white" />
               <p className="font-display text-lg font-semibold text-navy-900">{t.year}</p>
               <p className="mt-1 text-sm leading-relaxed text-navy-600">{t.text}</p>
@@ -90,6 +97,7 @@ export default function About() {
         </div>
       </section>
 
+      {STATS && (
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-navy-950 px-6 py-14 sm:px-14">
           <StaggerGroup className="grid grid-cols-2 gap-8 sm:grid-cols-4">
@@ -105,6 +113,7 @@ export default function About() {
           </StaggerGroup>
         </div>
       </section>
+      )}
 
       {agents.length > 0 && (
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">

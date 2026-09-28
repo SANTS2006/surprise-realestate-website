@@ -11,7 +11,7 @@ const FAQS = [
   { q: 'Are utilities included in the monthly rent?', a: 'Utilities (water, electricity, generator fuel) are billed separately unless a listing specifically states otherwise — check the amenities section of each listing.' },
   { q: 'Can I list my own property with Surprise Real Estate?', a: 'Yes — contact our property management team through the Contact page and one of our consultants will arrange a valuation and walkthrough.' },
   { q: 'Do you offer a referral bonus?', a: 'Current tenants can refer friends and family using their personal referral code from their tenant portal — bonuses are reviewed and paid out by our team once the referred tenant signs a lease.' },
-  { q: 'What areas of Freetown do you cover?', a: 'We currently manage properties across Aberdeen, Lumley, Hill Station, Wilberforce, Goderich, Regent, Congo Cross, Murray Town, Juba, and Tengbeh Town.' },
+  { q: 'What areas do you cover?', a: 'Browse our current neighborhoods on the Listings page — use the neighborhood filter to see everywhere we currently manage properties.' },
 ];
 
 function FaqItem({ item, open, onToggle }) {

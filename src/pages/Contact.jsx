@@ -5,7 +5,7 @@ import { listingsApi } from '../api/listings.js';
 import { MapView } from '../components/MapView.jsx';
 import { ScrollReveal } from '../components/ScrollReveal.jsx';
 
-const OFFICE = { lat: 8.4840, lng: -13.2299, title: 'Surprise Real Estate — Head Office' };
+const OFFICE = { lat: 8.6167, lng: -12.0333, title: 'Surprise Real Estate — Head Office' };
 
 export default function Contact() {
   useDocumentTitle('Contact Us');
@@ -88,7 +88,7 @@ export default function Contact() {
           <ScrollReveal delay={0.1} className="flex flex-col gap-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
-                { icon: MapPin, title: 'Visit us', text: '26 Siaka Stevens Street, Freetown' },
+                { icon: MapPin, title: 'Visit us', text: 'Central University, Mile 91, Sierra Leone' },
                 { icon: Phone, title: 'Call us', text: '+232 76 123 456' },
                 { icon: Mail, title: 'Email us', text: 'hello@surprise-realestate.com' },
                 { icon: Clock, title: 'Office hours', text: 'Mon–Fri, 8:30am–5:30pm' },

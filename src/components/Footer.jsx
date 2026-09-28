@@ -18,7 +18,7 @@ export function Footer() {
               <span className="font-display text-lg font-semibold text-white">Surprise Real Estate</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-navy-300">
-              Modern property management and rentals across Freetown — helping you find a place to call home.
+              Modern property management and rentals — helping you find a place to call home.
             </p>
             <div className="mt-5 flex gap-3">
               {SOCIALS.map((label) => (
@@ -51,6 +51,9 @@ export function Footer() {
               <li><Link to="/about" className="hover:text-gold-300">Our story</Link></li>
               <li><Link to="/contact" className="hover:text-gold-300">Contact us</Link></li>
               <li><Link to="/faq" className="hover:text-gold-300">FAQ</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-gold-300">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-gold-300">Terms &amp; Conditions</Link></li>
+              <li><Link to="/payment-policy" className="hover:text-gold-300">Payment Policy</Link></li>
             </ul>
           </div>
 
@@ -59,7 +62,7 @@ export function Footer() {
             <ul className="mt-4 flex flex-col gap-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-gold-400" aria-hidden="true" />
-                26 Siaka Stevens Street, Freetown, Sierra Leone
+                Central University, Mile 91, Sierra Leone
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone size={16} className="shrink-0 text-gold-400" aria-hidden="true" />
@@ -76,8 +79,9 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-navy-400 sm:flex-row">
           <p>© {new Date().getFullYear()} Surprise Real Estate. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-gold-300">Privacy Policy</a>
-            <a href="#" className="hover:text-gold-300">Terms of Service</a>
+            <Link to="/privacy-policy" className="hover:text-gold-300">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-gold-300">Terms &amp; Conditions</Link>
+            <Link to="/cookie-policy" className="hover:text-gold-300">Cookies</Link>
           </div>
         </div>
       </div>
