@@ -3,7 +3,7 @@ import { LegalLayout, LegalSection } from '../../components/LegalLayout.jsx';
 
 export default function PrivacyPolicy() {
   return (
-    <LegalLayout title="Privacy Policy" updated="September 2026">
+    <LegalLayout title="Privacy Policy" updated="September 2026" description="How Surprise Real Estate collects, uses, and protects your personal information.">
       <LegalSection heading="1. Overview">
         <p>
           Surprise Real Estate ("we", "us", "our") respects your privacy. This Privacy Policy explains what

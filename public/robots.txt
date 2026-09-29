@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://surprise-realty-listings.vercel.app/sitemap.xml

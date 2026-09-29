@@ -2,9 +2,25 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Search, Building2, Users2, MapPinned, ShieldCheck, Wallet, Headphones, Quote, ArrowRight, Home as HomeIcon } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
 import { PropertyCard } from '../components/PropertyCard.jsx';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
+
+const ORGANIZATION_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: 'Surprise Real Estate',
+  description: 'Property management and rentals — verified listings, transparent pricing, and a dedicated agent for every property.',
+  url: 'https://surprise-realty-listings.vercel.app',
+  telephone: '+232-76-123-456',
+  email: 'hello@surprise-realestate.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Central University, Mile 91',
+    addressCountry: 'SL',
+  },
+};
 
 const FEATURES = [
   { icon: ShieldCheck, title: 'Verified listings', text: 'Every property is inspected and verified by our team before it goes live — no surprises at move-in.' },
@@ -31,7 +47,11 @@ function StatCard({ icon: Icon, value, label }) {
 }
 
 export default function Home() {
-  useDocumentTitle('Find Your Next Home');
+  useDocumentTitle(
+    'Find Your Next Home',
+    'Browse verified houses and apartments for rent with Surprise Real Estate — real map locations, transparent pricing, and a dedicated agent for every listing.'
+  );
+  useStructuredData(ORGANIZATION_JSON_LD);
   const navigate = useNavigate();
   const [search, setSearch] = useState({ neighborhood: '', type: '', maxPrice: '' });
   const [filterOptions, setFilterOptions] = useState({ cities: [], unitTypes: [] });
@@ -69,6 +89,8 @@ export default function Home() {
         <img
           src="https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=2000&q=80"
           alt=""
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/60 to-navy-950/30" />
@@ -88,7 +110,9 @@ export default function Home() {
             <form onSubmit={onSearch} className="flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-2xl backdrop-blur sm:flex-row sm:items-center">
               <div className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2.5 sm:border-r sm:border-navy-100">
                 <MapPinned size={17} className="shrink-0 text-navy-400" aria-hidden="true" />
+                <label htmlFor="hero-neighborhood" className="sr-only">Neighborhood</label>
                 <select
+                  id="hero-neighborhood"
                   value={search.neighborhood}
                   onChange={(e) => setSearch((s) => ({ ...s, neighborhood: e.target.value }))}
                   className="w-full border-none bg-transparent text-sm text-navy-800 focus:outline-none focus:ring-0"
@@ -99,7 +123,9 @@ export default function Home() {
               </div>
               <div className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2.5 sm:border-r sm:border-navy-100">
                 <Building2 size={17} className="shrink-0 text-navy-400" aria-hidden="true" />
+                <label htmlFor="hero-type" className="sr-only">Property type</label>
                 <select
+                  id="hero-type"
                   value={search.type}
                   onChange={(e) => setSearch((s) => ({ ...s, type: e.target.value }))}
                   className="w-full border-none bg-transparent text-sm text-navy-800 focus:outline-none focus:ring-0"
@@ -110,7 +136,9 @@ export default function Home() {
               </div>
               <div className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2.5">
                 <Wallet size={17} className="shrink-0 text-navy-400" aria-hidden="true" />
+                <label htmlFor="hero-maxPrice" className="sr-only">Maximum budget</label>
                 <select
+                  id="hero-maxPrice"
                   value={search.maxPrice}
                   onChange={(e) => setSearch((s) => ({ ...s, maxPrice: e.target.value }))}
                   className="w-full border-none bg-transparent text-sm text-navy-800 focus:outline-none focus:ring-0"

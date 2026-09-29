@@ -3,7 +3,7 @@ import { LegalLayout, LegalSection } from '../../components/LegalLayout.jsx';
 
 export default function CookiePolicy() {
   return (
-    <LegalLayout title="Cookie Policy" updated="September 2026">
+    <LegalLayout title="Cookie Policy" updated="September 2026" description="How Surprise Real Estate uses cookies and local browser storage on our website and portal.">
       <LegalSection heading="1. What this covers">
         <p>
           This Cookie Policy explains how Surprise Real Estate uses cookies and similar local browser storage on

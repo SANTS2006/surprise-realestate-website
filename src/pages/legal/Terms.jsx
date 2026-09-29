@@ -6,7 +6,7 @@ import { LegalLayout, LegalSection } from '../../components/LegalLayout.jsx';
 // this one page rather than maintaining two near-duplicate documents.
 export default function Terms() {
   return (
-    <LegalLayout title="Terms &amp; Conditions" updated="September 2026">
+    <LegalLayout title="Terms &amp; Conditions" updated="September 2026" description="The terms and conditions governing use of the Surprise Real Estate website and tenant/owner portal.">
       <LegalSection heading="1. Agreement to terms">
         <p>
           These Terms &amp; Conditions ("Terms") govern your use of the Surprise Real Estate website and our

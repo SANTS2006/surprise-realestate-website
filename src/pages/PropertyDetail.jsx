@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, ArrowLeft, Home,
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
 import { formatCurrency, formatArea } from '../utils/format.js';
 import { MapView } from '../components/MapView.jsx';
@@ -58,9 +59,11 @@ function Gallery({ images, title }) {
               key={img}
               type="button"
               onClick={() => setActive(i)}
+              aria-label={`View photo ${i + 1} of ${images.length}`}
+              aria-current={active === i}
               className={`aspect-[4/3] overflow-hidden rounded-lg ring-2 transition-all ${active === i ? 'ring-gold-400' : 'ring-transparent opacity-70 hover:opacity-100'}`}
             >
-              <img src={img} alt="" className="h-full w-full object-cover" />
+              <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>
@@ -107,12 +110,22 @@ function InquiryForm({ listing }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3">
-        <input required placeholder="First name" value={form.firstName} onChange={onChange('firstName')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
-        <input required placeholder="Last name" value={form.lastName} onChange={onChange('lastName')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+        <div>
+          <label htmlFor="inquiry-firstName" className="sr-only">First name</label>
+          <input id="inquiry-firstName" required placeholder="First name" value={form.firstName} onChange={onChange('firstName')} className="h-10 w-full rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+        </div>
+        <div>
+          <label htmlFor="inquiry-lastName" className="sr-only">Last name</label>
+          <input id="inquiry-lastName" required placeholder="Last name" value={form.lastName} onChange={onChange('lastName')} className="h-10 w-full rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+        </div>
       </div>
-      <input required type="email" placeholder="Email address" value={form.email} onChange={onChange('email')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
-      <input required type="tel" placeholder="Phone number" value={form.phone} onChange={onChange('phone')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+      <label htmlFor="inquiry-email" className="sr-only">Email address</label>
+      <input id="inquiry-email" required type="email" placeholder="Email address" value={form.email} onChange={onChange('email')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+      <label htmlFor="inquiry-phone" className="sr-only">Phone number</label>
+      <input id="inquiry-phone" required type="tel" placeholder="Phone number" value={form.phone} onChange={onChange('phone')} className="h-10 rounded-lg border border-navy-200 px-3 text-sm focus:border-navy-400 focus:outline-none" />
+      <label htmlFor="inquiry-message" className="sr-only">Message</label>
       <textarea
+        id="inquiry-message"
         required
         rows={3}
         value={form.message}
@@ -133,7 +146,35 @@ export default function PropertyDetail() {
   const [notFound, setNotFound] = useState(false);
   const [similar, setSimilar] = useState([]);
 
-  useDocumentTitle(listing ? listing.title : 'Listing');
+  const description = listing
+    ? `${listing.title} in ${listing.city ?? 'a great location'} — ${listing.bedrooms > 0 ? `${listing.bedrooms} bed, ` : ''}${listing.bathrooms} bath, ${formatCurrency(listing.price, { rounded: true })}/month.`
+    : undefined;
+  useDocumentTitle(listing ? listing.title : 'Listing', description);
+  useStructuredData(listing && {
+    '@context': 'https://schema.org',
+    '@type': 'Apartment',
+    name: listing.title,
+    description: listing.description || description,
+    numberOfRooms: listing.bedrooms || undefined,
+    numberOfBathroomsTotal: listing.bathrooms || undefined,
+    floorSize: listing.area != null ? { '@type': 'QuantitativeValue', value: listing.area, unitCode: 'MTK' } : undefined,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: listing.address,
+      addressLocality: listing.city,
+      addressRegion: listing.region || undefined,
+      addressCountry: listing.country,
+    },
+    ...(listing.lat != null && listing.lng != null
+      ? { geo: { '@type': 'GeoCoordinates', latitude: listing.lat, longitude: listing.lng } }
+      : {}),
+    offers: {
+      '@type': 'Offer',
+      price: listing.price,
+      priceCurrency: 'SLE',
+      availability: 'https://schema.org/InStock',
+    },
+  });
 
   useEffect(() => {
     setListing(null);

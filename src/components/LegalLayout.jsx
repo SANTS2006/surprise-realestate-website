@@ -7,8 +7,8 @@ import { ScrollReveal } from './ScrollReveal.jsx';
 // Conditions, Payment Policy, Cookie Policy) — a plain, readable long-form
 // layout rather than the marketing-heavy styling used elsewhere on the
 // site, since these pages exist to be read carefully, not to sell.
-export function LegalLayout({ title, updated, children }) {
-  useDocumentTitle(title);
+export function LegalLayout({ title, updated, description, children }) {
+  useDocumentTitle(title, description);
 
   return (
     <div className="bg-white pb-20 pt-28">

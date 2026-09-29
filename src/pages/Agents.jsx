@@ -6,7 +6,7 @@ import { LoadingState } from '../components/LoadingState.jsx';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
 
 export default function Agents() {
-  useDocumentTitle('Our Agents');
+  useDocumentTitle('Our Agents', 'Meet the Surprise Real Estate team — a named consultant for every listing, reachable by phone or email.');
   const [agents, setAgents] = useState(null);
   const [error, setError] = useState(false);
 
@@ -40,7 +40,7 @@ export default function Agents() {
               <StaggerItem key={a.id}>
                 <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-navy-100">
                   {a.photo ? (
-                    <img src={a.photo} alt={a.name} className="aspect-[4/5] w-full object-cover" />
+                    <img src={a.photo} alt={a.name} loading="lazy" className="aspect-[4/5] w-full object-cover" />
                   ) : (
                     <div className="flex aspect-[4/5] w-full items-center justify-center bg-navy-50">
                       <User size={40} className="text-navy-300" aria-hidden="true" />

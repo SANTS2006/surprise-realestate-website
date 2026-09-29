@@ -21,7 +21,7 @@ const TIMELINE = [
 ];
 
 export default function About() {
-  useDocumentTitle('About Us');
+  useDocumentTitle('About Us', 'Learn about Surprise Real Estate — our mission, values, and the team helping you find your next home.');
   const [agents, setAgents] = useState([]);
   const [stats, setStats] = useState(null);
 
@@ -58,8 +58,10 @@ export default function About() {
         <ScrollReveal>
           <div className="overflow-hidden rounded-3xl">
             <img
-              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=2000&q=80"
+              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80"
               alt="Our office team"
+              loading="lazy"
+              decoding="async"
               className="h-[380px] w-full object-cover"
             />
           </div>
@@ -129,7 +131,7 @@ export default function About() {
             {agents.slice(0, 4).map((a) => (
               <StaggerItem key={a.id} className="text-center">
                 {a.photo ? (
-                  <img src={a.photo} alt={a.name} className="mx-auto h-32 w-32 rounded-full object-cover shadow-card" />
+                  <img src={a.photo} alt={a.name} loading="lazy" className="mx-auto h-32 w-32 rounded-full object-cover shadow-card" />
                 ) : (
                   <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-navy-50 shadow-card">
                     <User size={40} className="text-navy-300" aria-hidden="true" />

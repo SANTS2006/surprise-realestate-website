@@ -3,7 +3,7 @@ import { LegalLayout, LegalSection } from '../../components/LegalLayout.jsx';
 
 export default function PaymentPolicy() {
   return (
-    <LegalLayout title="Payment Policy" updated="September 2026">
+    <LegalLayout title="Payment Policy" updated="September 2026" description="How rent, fees, deposits, and refunds are handled for tenancies managed by Surprise Real Estate.">
       <LegalSection heading="1. Scope">
         <p>
           This Payment Policy explains how rent, fees, and deposits are handled for tenancies managed by Surprise

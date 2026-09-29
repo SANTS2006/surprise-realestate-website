@@ -36,7 +36,7 @@ function FaqItem({ item, open, onToggle }) {
 }
 
 export default function FAQ() {
-  useDocumentTitle('Frequently Asked Questions');
+  useDocumentTitle('Frequently Asked Questions', 'Answers to common questions about viewings, documents, utilities, listing your property, and our referral program.');
   const [openIndex, setOpenIndex] = useState(0);
 
   return (

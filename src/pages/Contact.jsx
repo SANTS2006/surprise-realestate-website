@@ -8,7 +8,7 @@ import { ScrollReveal } from '../components/ScrollReveal.jsx';
 const OFFICE = { lat: 8.6167, lng: -12.0333, title: 'Surprise Real Estate — Head Office' };
 
 export default function Contact() {
-  useDocumentTitle('Contact Us');
+  useDocumentTitle('Contact Us', 'Get in touch with Surprise Real Estate — ask about a listing, request a viewing, or reach our team directly.');
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [error, setError] = useState('');

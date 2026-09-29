@@ -3,7 +3,7 @@ import { Home, SearchX } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 
 export default function NotFound() {
-  useDocumentTitle('Page Not Found');
+  useDocumentTitle('Page Not Found', "The page you're looking for doesn't exist, or may have moved.", { noindex: true });
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center gap-4 px-4 text-center">

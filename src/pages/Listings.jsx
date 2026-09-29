@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LayoutGrid, MapIcon, SlidersHorizontal, X, SearchX } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
@@ -18,25 +18,26 @@ const SORTS = [
 // Declared at module scope (not inside Listings) so it isn't re-created —
 // and every filter input's focus/state reset — on every render.
 function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTypes, activeFilterCount, setFilter, clearFilters }) {
+  const id = useId();
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Neighborhood</label>
-        <select value={neighborhood} onChange={(e) => setFilter('neighborhood', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-neighborhood`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Neighborhood</label>
+        <select id={`${id}-neighborhood`} value={neighborhood} onChange={(e) => setFilter('neighborhood', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">All neighborhoods</option>
           {cities.map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </div>
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Property type</label>
-        <select value={type} onChange={(e) => setFilter('type', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-type`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Property type</label>
+        <select id={`${id}-type`} value={type} onChange={(e) => setFilter('type', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">All types</option>
           {unitTypes.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Max monthly rent</label>
-        <select value={maxPrice} onChange={(e) => setFilter('maxPrice', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-maxPrice`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Max monthly rent</label>
+        <select id={`${id}-maxPrice`} value={maxPrice} onChange={(e) => setFilter('maxPrice', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">Any budget</option>
           <option value="1500">Up to Sle 1,500</option>
           <option value="2500">Up to Sle 2,500</option>
@@ -45,8 +46,8 @@ function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTyp
         </select>
       </div>
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-navy-500">Minimum bedrooms</label>
-        <select value={minBeds} onChange={(e) => setFilter('minBeds', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-minBeds`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Minimum bedrooms</label>
+        <select id={`${id}-minBeds`} value={minBeds} onChange={(e) => setFilter('minBeds', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
           <option value="">Any</option>
           {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
         </select>
@@ -62,7 +63,7 @@ function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTyp
 }
 
 export default function Listings() {
-  useDocumentTitle('Listings');
+  useDocumentTitle('Listings', 'Browse all available houses and apartments for rent — filter by neighborhood, property type, budget, and bedrooms.');
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -139,7 +140,8 @@ export default function Listings() {
               </button>
 
               <div className="ml-auto flex items-center gap-3">
-                <select value={sort} onChange={(e) => setFilter('sort', e.target.value)} className="h-10 rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+                <label htmlFor="listings-sort" className="sr-only">Sort listings</label>
+                <select id="listings-sort" value={sort} onChange={(e) => setFilter('sort', e.target.value)} className="h-10 rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
                   {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
                 <div className="flex rounded-lg border border-navy-200 bg-white p-1">
