@@ -7,6 +7,7 @@ import {
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
+import { rentUrl } from '../config/env.js';
 import { formatCurrency, formatArea } from '../utils/format.js';
 import { MapView } from '../components/MapView.jsx';
 import { LoadingState } from '../components/LoadingState.jsx';
@@ -302,7 +303,15 @@ export default function PropertyDetail() {
                   </div>
                 </>
               )}
-              <div className={listing.agent ? 'mt-5 border-t border-navy-100 pt-5' : ''}>
+              <a
+                href={rentUrl(listing.id)}
+                className="mb-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-navy-900 text-sm font-semibold text-white transition-colors hover:bg-navy-800"
+              >
+                <Home size={16} aria-hidden="true" />
+                Rent this unit
+              </a>
+              <div className={listing.agent ? 'mt-5 border-t border-navy-100 pt-5' : 'border-t border-navy-100 pt-5'}>
+                <p className="mb-3 text-sm font-semibold text-navy-900">Or ask a question first</p>
                 <InquiryForm listing={listing} />
               </div>
             </ScrollReveal>

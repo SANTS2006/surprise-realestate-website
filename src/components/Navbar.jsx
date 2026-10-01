@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Home as HomeIcon, Phone, LogIn } from 'lucide-react';
 import clsx from 'clsx';
-import { APP_URL } from '../config/env.js';
+import { PORTAL_LOGIN_URL } from '../config/env.js';
 
 const LINKS = [
   { to: '/', label: 'Home' },
@@ -71,7 +71,7 @@ export function Navbar() {
             +232 76 123 456
           </a>
           <a
-            href={APP_URL}
+            href={PORTAL_LOGIN_URL}
             className={clsx(
               'flex items-center gap-1.5 text-sm font-medium',
               transparent ? 'text-white/90 hover:text-white' : 'text-navy-600 hover:text-navy-900'
@@ -124,7 +124,7 @@ export function Navbar() {
               <Phone size={15} aria-hidden="true" />
               +232 76 123 456
             </a>
-            <a href={APP_URL} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-navy-600">
+            <a href={PORTAL_LOGIN_URL} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-navy-600">
               <LogIn size={15} aria-hidden="true" />
               Sign In
             </a>
