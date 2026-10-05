@@ -87,9 +87,9 @@ export default function PrivacyPolicy() {
       <LegalSection heading="10. Contact us">
         <p>
           Questions about this Privacy Policy or your personal information can be sent to{' '}
-          <a href="mailto:hello@surprise-realestate.com" className="font-medium text-navy-700 underline hover:text-navy-900">hello@surprise-realestate.com</a>,
+          <a href="mailto:suprisesolutiongroup@gmail.com" className="font-medium text-navy-700 underline hover:text-navy-900">suprisesolutiongroup@gmail.com</a>,
           or via our <Link to="/contact" className="font-medium text-navy-700 underline hover:text-navy-900">Contact page</Link>.
-          Our office is located at Central University, Mile 91, Sierra Leone.
+          Our office is located at Kawa Street, Bo, Sierra Leone.
         </p>
       </LegalSection>
     </LegalLayout>

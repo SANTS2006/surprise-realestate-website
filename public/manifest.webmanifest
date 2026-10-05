@@ -1,0 +1,13 @@
+{
+  "name": "Surprise Real Estate",
+  "short_name": "Surprise",
+  "description": "Find houses and apartments for rent in Sierra Leone.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#041630",
+  "theme_color": "#0D3166",
+  "icons": [
+    { "src": "/logo.webp", "sizes": "1024x1024", "type": "image/webp", "purpose": "any" }
+  ]
+}

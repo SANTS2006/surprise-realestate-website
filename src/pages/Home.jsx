@@ -6,6 +6,7 @@ import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
 import { PropertyCard } from '../components/PropertyCard.jsx';
 import { ScrollReveal, StaggerGroup, StaggerItem } from '../components/ScrollReveal.jsx';
+import { SITE } from '../config/site.js';
 
 const ORGANIZATION_JSON_LD = {
   '@context': 'https://schema.org',
@@ -13,13 +14,15 @@ const ORGANIZATION_JSON_LD = {
   name: 'Surprise Real Estate',
   description: 'Property management and rentals — verified listings, transparent pricing, and a dedicated agent for every property.',
   url: 'https://surprise-realty-listings.vercel.app',
-  telephone: '+232-76-123-456',
-  email: 'hello@surprise-realestate.com',
+  telephone: '+232-75-441-960',
+  email: SITE.email,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Central University, Mile 91',
+    streetAddress: 'Kawa Street',
+    addressLocality: 'Bo',
     addressCountry: 'SL',
   },
+  geo: { '@type': 'GeoCoordinates', latitude: SITE.office.lat, longitude: SITE.office.lng },
 };
 
 const FEATURES = [

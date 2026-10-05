@@ -51,7 +51,7 @@ function MapController({ center, zoom, bounds }) {
 // one of the two is expected. Real listings can have no coordinates yet
 // (a staff member hasn't set them on the property) — those are filtered out
 // here rather than plotted at (0,0) or crashing Leaflet's bounds-fitting.
-export function MapView({ listings, single, height = 420, className }) {
+export function MapView({ listings, single, height = 420, className, directionsUrl }) {
   const all = listings ?? (single ? [single] : []);
   const points = all.filter((p) => typeof p.lat === 'number' && typeof p.lng === 'number');
 
@@ -86,6 +86,11 @@ export function MapView({ listings, single, height = 420, className }) {
               <div className="text-sm">
                 <p className="font-semibold text-navy-900">{p.title}</p>
                 {p.price != null && <p className="text-navy-600">{formatCurrency(p.price, { rounded: true })}/mo</p>}
+                {directionsUrl && (
+                  <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block font-medium text-navy-700 underline">
+                    Get directions
+                  </a>
+                )}
                 {p.id && (
                   <Link to={`/listings/${p.id}`} className="mt-1 inline-block font-medium text-navy-700 underline">
                     View listing

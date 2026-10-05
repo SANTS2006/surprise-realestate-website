@@ -55,3 +55,35 @@ h1, h2, h3, h4, .font-display {
     text-wrap: balance;
   }
 }
+
+/* ---- Dark mode ----
+   Components are written with the light palette; in dark mode the same
+   classes are re-pointed at dark surfaces and light text. Hero and footer
+   already sit on deep blue, so they are left alone. */
+.dark body { background-color: #041630; color: #EAF3FC; }
+.dark .bg-white { background-color: #0A2142; }
+.dark .bg-white\/95 { background-color: rgba(4, 22, 48, 0.95); }
+.dark .bg-white\/90 { background-color: rgba(10, 33, 66, 0.9); }
+.dark .hover\:bg-white:hover { background-color: #0F2C58; }
+.dark .bg-navy-50, .dark .hover\:bg-navy-50:hover { background-color: #0D2A52; }
+.dark .bg-navy-50\/60, .dark .bg-navy-50\/40 { background-color: rgba(13, 42, 82, 0.6); }
+.dark .bg-navy-100 { background-color: #123560; }
+.dark .bg-navy-900 { background-color: #123F7D; }
+.dark .hover\:bg-navy-800:hover { background-color: #3F83D2; }
+.dark .text-navy-900, .dark .hover\:text-navy-900:hover, .dark .text-navy-800, .dark .hover\:text-navy-800:hover { color: #EAF3FC; }
+.dark .text-navy-700, .dark .text-navy-600 { color: #CFE3F8; }
+.dark .text-navy-500 { color: #A9C6EA; }
+.dark .text-navy-400 { color: #8FB4E0; }
+.dark .text-gold-600 { color: #5DD3A2; }
+.dark .border-navy-100, .dark .border-navy-200, .dark .sm\:border-navy-100 { border-color: rgba(159, 195, 235, 0.18); }
+.dark .ring-navy-100 { --tw-ring-color: rgba(159, 195, 235, 0.16); }
+.dark .shadow-card, .dark .shadow-card-hover { box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.6); }
+.dark input, .dark select, .dark textarea { background-color: #0A2142; color: #EAF3FC; }
+.dark input::placeholder, .dark textarea::placeholder { color: #7FA3D4; }
+/* dark text that sits on the green accent must stay dark */
+.dark .bg-gold-400, .dark .hover\:bg-gold-300:hover, .dark .group:hover .group-hover\:bg-gold-400 { color: #08234A; }
+.dark .bg-gold-400.text-navy-900 { color: #08234A; }
+/* white badge behind the logo keeps its dark glyphs */
+.dark .leaflet-tile { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+.dark .leaflet-popup-content-wrapper, .dark .leaflet-popup-tip { background: #0A2142; color: #EAF3FC; }
+.dark ::-webkit-scrollbar-thumb { background-color: #1F63B8; }

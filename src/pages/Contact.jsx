@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Check } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Check, Navigation } from 'lucide-react';
+import { SITE } from '../config/site.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { listingsApi } from '../api/listings.js';
 import { MapView } from '../components/MapView.jsx';
 import { ScrollReveal } from '../components/ScrollReveal.jsx';
 
-const OFFICE = { lat: 8.6167, lng: -12.0333, title: 'Surprise Real Estate — Head Office' };
+const OFFICE = SITE.office;
 
 export default function Contact() {
   useDocumentTitle('Contact Us', 'Get in touch with Surprise Real Estate — ask about a listing, request a viewing, or reach our team directly.');
@@ -88,9 +89,9 @@ export default function Contact() {
           <ScrollReveal delay={0.1} className="flex flex-col gap-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
-                { icon: MapPin, title: 'Visit us', text: 'Central University, Mile 91, Sierra Leone' },
-                { icon: Phone, title: 'Call us', text: '+232 76 123 456' },
-                { icon: Mail, title: 'Email us', text: 'hello@surprise-realestate.com' },
+                { icon: MapPin, title: 'Visit us', text: SITE.address, href: SITE.mapUrl },
+                { icon: Phone, title: 'Call us', text: SITE.phone, href: `tel:${SITE.phoneTel}` },
+                { icon: Mail, title: 'Email us', text: SITE.email, href: `mailto:${SITE.email}` },
                 { icon: Clock, title: 'Office hours', text: 'Mon–Fri, 8:30am–5:30pm' },
               ].map((c) => (
                 <div key={c.title} className="rounded-xl bg-white p-5 shadow-card ring-1 ring-navy-100">
@@ -98,11 +99,24 @@ export default function Contact() {
                     <c.icon size={18} aria-hidden="true" />
                   </span>
                   <p className="mt-3 text-sm font-semibold text-navy-900">{c.title}</p>
-                  <p className="text-sm text-navy-500">{c.text}</p>
+                  {c.href ? (
+                    <a href={c.href} {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="break-words text-sm text-navy-500 hover:text-navy-900">{c.text}</a>
+                  ) : (
+                    <p className="text-sm text-navy-500">{c.text}</p>
+                  )}
                 </div>
               ))}
             </div>
-            <MapView single={OFFICE} height={280} className="overflow-hidden rounded-2xl ring-1 ring-navy-100" />
+            <MapView single={OFFICE} height={280} directionsUrl={SITE.directionsUrl} className="overflow-hidden rounded-2xl ring-1 ring-navy-100" />
+            <a
+              href={SITE.directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gold-400 px-5 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-gold-300"
+            >
+              <Navigation size={16} aria-hidden="true" />
+              Get directions to {SITE.street}, {SITE.city}
+            </a>
           </ScrollReveal>
         </div>
       </section>

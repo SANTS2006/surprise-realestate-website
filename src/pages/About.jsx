@@ -17,7 +17,7 @@ const FOUNDING_YEAR = 2026;
 
 const TIMELINE = [
   { year: String(FOUNDING_YEAR), text: 'Surprise Real Estate is founded, with our digital tenant and owner portal and this public listings site built and launched from day one.' },
-  { year: String(FOUNDING_YEAR), text: 'We open our doors at Central University, Mile 91, and begin onboarding our first managed properties and tenants.' },
+  { year: String(FOUNDING_YEAR), text: 'We open our doors at Kawa Street, Bo, and begin onboarding our first managed properties and tenants.' },
 ];
 
 export default function About() {
@@ -49,7 +49,7 @@ export default function About() {
             Real estate, done the right way.
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-navy-500">
-            Surprise Real Estate helps people find homes and helps owners manage their properties, from our office at Central University, Mile 91. We believe renting a home shouldn't be complicated — so we've built our business around transparency, verified listings, and genuine service.
+            Surprise Real Estate helps people find homes and helps owners manage their properties, from our office on Kawa Street, Bo. We believe renting a home shouldn't be complicated — so we've built our business around transparency, verified listings, and genuine service.
           </p>
         </ScrollReveal>
       </section>

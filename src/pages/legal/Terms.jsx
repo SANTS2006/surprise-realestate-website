@@ -10,8 +10,8 @@ export default function Terms() {
       <LegalSection heading="1. Agreement to terms">
         <p>
           These Terms &amp; Conditions ("Terms") govern your use of the Surprise Real Estate website and our
-          tenant/owner portal (together, the "Service"), operated by Surprise Real Estate, Central University,
-          Mile 91, Sierra Leone. By browsing this site, submitting an inquiry, or creating a portal account, you
+          tenant/owner portal (together, the "Service"), operated by Surprise Real Estate, Kawa Street,
+          Bo, Sierra Leone. By browsing this site, submitting an inquiry, or creating a portal account, you
           agree to be bound by these Terms. If you do not agree, please do not use the Service.
         </p>
       </LegalSection>
@@ -37,7 +37,7 @@ export default function Terms() {
           <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
           <li>You agree to provide accurate, current, and complete information when registering or updating your account.</li>
           <li>You are responsible for all activity that occurs under your account.</li>
-          <li>Notify us immediately at <a href="mailto:hello@surprise-realestate.com" className="font-medium text-navy-700 underline hover:text-navy-900">hello@surprise-realestate.com</a> if you suspect unauthorized use of your account.</li>
+          <li>Notify us immediately at <a href="mailto:suprisesolutiongroup@gmail.com" className="font-medium text-navy-700 underline hover:text-navy-900">suprisesolutiongroup@gmail.com</a> if you suspect unauthorized use of your account.</li>
         </ul>
       </LegalSection>
 
@@ -105,7 +105,7 @@ export default function Terms() {
       <LegalSection heading="13. Contact us">
         <p>
           Questions about these Terms can be sent to{' '}
-          <a href="mailto:hello@surprise-realestate.com" className="font-medium text-navy-700 underline hover:text-navy-900">hello@surprise-realestate.com</a>,
+          <a href="mailto:suprisesolutiongroup@gmail.com" className="font-medium text-navy-700 underline hover:text-navy-900">suprisesolutiongroup@gmail.com</a>,
           or via our <Link to="/contact" className="font-medium text-navy-700 underline hover:text-navy-900">Contact page</Link>.
         </p>
       </LegalSection>

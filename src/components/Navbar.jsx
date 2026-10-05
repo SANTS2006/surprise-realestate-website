@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Home as HomeIcon, Phone, LogIn } from 'lucide-react';
+import { Menu, X, Phone, LogIn } from 'lucide-react';
 import clsx from 'clsx';
 import { PORTAL_LOGIN_URL } from '../config/env.js';
+import { SITE } from '../config/site.js';
+import { BrandMark } from './BrandMark.jsx';
+import { ThemeToggle } from './ThemeToggle.jsx';
 
 const LINKS = [
   { to: '/', label: 'Home' },
@@ -38,9 +41,7 @@ export function Navbar() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <span className={clsx('flex h-9 w-9 items-center justify-center rounded-lg', transparent ? 'bg-white/15' : 'bg-navy-800')}>
-            <HomeIcon size={18} className={transparent ? 'text-white' : 'text-gold-400'} aria-hidden="true" />
-          </span>
+          <BrandMark size={38} />
           <span className={clsx('font-display text-lg font-semibold', transparent ? 'text-white' : 'text-navy-900')}>
             Surprise Real Estate
           </span>
@@ -66,10 +67,11 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <a href="tel:+23276123456" className={clsx('flex items-center gap-1.5 text-sm font-medium', transparent ? 'text-white/90' : 'text-navy-600')}>
+          <a href={`tel:${SITE.phoneTel}`} className={clsx('hidden items-center gap-1.5 text-sm font-medium xl:flex', transparent ? 'text-white/90' : 'text-navy-600')}>
             <Phone size={15} aria-hidden="true" />
-            +232 76 123 456
+            {SITE.phone}
           </a>
+          <ThemeToggle className={transparent ? 'text-white/90 hover:bg-white/15' : 'text-navy-600 hover:bg-navy-50'} />
           <a
             href={PORTAL_LOGIN_URL}
             className={clsx(
@@ -88,15 +90,18 @@ export function Navbar() {
           </Link>
         </div>
 
+        <div className="flex items-center gap-1 md:hidden">
+        <ThemeToggle className={transparent ? 'text-white hover:bg-white/15' : 'text-navy-900 hover:bg-navy-50'} />
         <button
           type="button"
           onClick={() => setMobileOpen((o) => !o)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileOpen}
-          className={clsx('rounded-lg p-2 md:hidden', transparent ? 'text-white' : 'text-navy-900')}
+          className={clsx('rounded-lg p-2', transparent ? 'text-white' : 'text-navy-900')}
         >
           {mobileOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
         </button>
+        </div>
       </div>
 
       <div
@@ -120,9 +125,9 @@ export function Navbar() {
                 {link.label}
               </NavLink>
             ))}
-            <a href="tel:+23276123456" className="mt-2 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-navy-600">
+            <a href={`tel:${SITE.phoneTel}`} className="mt-2 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-navy-600">
               <Phone size={15} aria-hidden="true" />
-              +232 76 123 456
+              {SITE.phone}
             </a>
             <a href={PORTAL_LOGIN_URL} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-navy-600">
               <LogIn size={15} aria-hidden="true" />

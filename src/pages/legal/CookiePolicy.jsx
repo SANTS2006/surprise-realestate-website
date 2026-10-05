@@ -43,7 +43,7 @@ export default function CookiePolicy() {
       <LegalSection heading="6. Contact us">
         <p>
           Questions about this Cookie Policy can be sent to{' '}
-          <a href="mailto:hello@surprise-realestate.com" className="font-medium text-navy-700 underline hover:text-navy-900">hello@surprise-realestate.com</a>,
+          <a href="mailto:suprisesolutiongroup@gmail.com" className="font-medium text-navy-700 underline hover:text-navy-900">suprisesolutiongroup@gmail.com</a>,
           or via our <Link to="/contact" className="font-medium text-navy-700 underline hover:text-navy-900">Contact page</Link>. See also our{' '}
           <Link to="/privacy-policy" className="font-medium text-navy-700 underline hover:text-navy-900">Privacy Policy</Link>.
         </p>

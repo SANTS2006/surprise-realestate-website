@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Navbar } from '../components/Navbar.jsx';
 import { Footer } from '../components/Footer.jsx';
+import { FloatingActions } from '../components/FloatingActions.jsx';
 
 export function PublicLayout() {
   const { pathname } = useLocation();
@@ -23,6 +24,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <FloatingActions />
     </div>
   );
 }

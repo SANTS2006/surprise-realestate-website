@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Home as HomeIcon, MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
+import { SITE } from '../config/site.js';
+import { BrandMark } from './BrandMark.jsx';
 
 // lucide-react dropped brand/wordmark icons — simple text badges avoid an
 // extra icon-library dependency for three links.
@@ -12,9 +14,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link to="/" className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                <HomeIcon size={18} className="text-gold-400" aria-hidden="true" />
-              </span>
+              <BrandMark size={38} />
               <span className="font-display text-lg font-semibold text-white">Surprise Real Estate</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-navy-300">
@@ -62,15 +62,15 @@ export function Footer() {
             <ul className="mt-4 flex flex-col gap-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-gold-400" aria-hidden="true" />
-                Central University, Mile 91, Sierra Leone
+                <a href={SITE.mapUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold-300">{SITE.address}</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone size={16} className="shrink-0 text-gold-400" aria-hidden="true" />
-                <a href="tel:+23276123456" className="hover:text-gold-300">+232 76 123 456</a>
+                <a href={`tel:${SITE.phoneTel}`} className="hover:text-gold-300">{SITE.phone}</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail size={16} className="shrink-0 text-gold-400" aria-hidden="true" />
-                <a href="mailto:hello@surprise-realestate.com" className="hover:text-gold-300">hello@surprise-realestate.com</a>
+                <a href={`mailto:${SITE.email}`} className="hover:text-gold-300 break-all">{SITE.email}</a>
               </li>
             </ul>
           </div>
