@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import {
-  BedDouble, Bath, Ruler, MapPin, Calendar, Phone, Mail, Check,
+  BedDouble, Bath, Ruler, MapPin, Calendar, Phone, Mail, Check, Wallet, Sofa, Layers, Building2,
   ChevronLeft, ChevronRight, ArrowLeft, Home,
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
 import { rentUrl } from '../config/env.js';
-import { formatCurrency, formatArea } from '../utils/format.js';
+import { formatCurrency, formatArea, listingKind } from '../utils/format.js';
 import { MapView } from '../components/MapView.jsx';
 import { LoadingState } from '../components/LoadingState.jsx';
 import { PropertyCard } from '../components/PropertyCard.jsx';
@@ -206,6 +206,7 @@ export default function PropertyDetail() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               {listing.type && <span className="rounded-full bg-navy-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">{listing.type}</span>}
+              {listingKind(listing) && <span className="rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold text-navy-900">{listingKind(listing)}</span>}
             </div>
             <h1 className="mt-3 font-display text-3xl font-semibold text-navy-900 sm:text-4xl">{listing.title}</h1>
             {listing.address && (
@@ -228,7 +229,7 @@ export default function PropertyDetail() {
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
           <div className="flex flex-col gap-10">
             <ScrollReveal>
-              <div className="grid grid-cols-3 gap-4 rounded-2xl bg-navy-50 p-5 sm:gap-8 sm:p-6">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-2xl bg-navy-50 p-5 sm:grid-cols-3 sm:p-6 lg:grid-cols-4">
                 {listing.bedrooms > 0 && (
                   <div className="flex items-center gap-2.5">
                     <BedDouble size={20} className="text-navy-500" aria-hidden="true" />
@@ -243,6 +244,28 @@ export default function PropertyDetail() {
                   <div className="flex items-center gap-2.5">
                     <Ruler size={20} className="text-navy-500" aria-hidden="true" />
                     <div><p className="font-semibold text-navy-900">{formatArea(listing.area)}</p><p className="text-xs text-navy-500">Floor area</p></div>
+                  </div>
+                )}
+                {listing.deposit != null && (
+                  <div className="flex items-center gap-2.5">
+                    <Wallet size={20} className="text-navy-500" aria-hidden="true" />
+                    <div><p className="font-semibold text-navy-900">{formatCurrency(listing.deposit, { rounded: true })}</p><p className="text-xs text-navy-500">Deposit</p></div>
+                  </div>
+                )}
+                <div className="flex items-center gap-2.5">
+                  <Sofa size={20} className="text-navy-500" aria-hidden="true" />
+                  <div><p className="font-semibold text-navy-900">{listing.furnished ? 'Furnished' : 'Unfurnished'}</p><p className="text-xs text-navy-500">Furnishing</p></div>
+                </div>
+                {listing.floor != null && (
+                  <div className="flex items-center gap-2.5">
+                    <Layers size={20} className="text-navy-500" aria-hidden="true" />
+                    <div><p className="font-semibold text-navy-900">{listing.floor}</p><p className="text-xs text-navy-500">Floor / level</p></div>
+                  </div>
+                )}
+                {listing.buildingName && (
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <Building2 size={20} className="shrink-0 text-navy-500" aria-hidden="true" />
+                    <div className="min-w-0"><p className="truncate font-semibold text-navy-900">{listing.buildingName}</p><p className="text-xs text-navy-500">Building</p></div>
                   </div>
                 )}
               </div>
@@ -263,7 +286,7 @@ export default function PropertyDetail() {
 
             {listing.amenities.length > 0 && (
               <ScrollReveal>
-                <h2 className="font-display text-xl font-semibold text-navy-900">Amenities</h2>
+                <h2 className="font-display text-xl font-semibold text-navy-900">Facilities</h2>
                 <StaggerGroup className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {listing.amenities.map((a) => (
                     <StaggerItem key={a} className="flex items-center gap-2.5 text-sm text-navy-700">
@@ -308,7 +331,7 @@ export default function PropertyDetail() {
                 className="mb-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-navy-900 text-sm font-semibold text-white transition-colors hover:bg-navy-800"
               >
                 <Home size={16} aria-hidden="true" />
-                Rent this unit
+                {listing.isWhole ? 'Rent this property' : 'Rent this unit'}
               </a>
               <div className={listing.agent ? 'mt-5 border-t border-navy-100 pt-5' : 'border-t border-navy-100 pt-5'}>
                 <p className="mb-3 text-sm font-semibold text-navy-900">Or ask a question first</p>

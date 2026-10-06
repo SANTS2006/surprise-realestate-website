@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BedDouble, Bath, Ruler, MapPin, Home } from 'lucide-react';
-import { formatCurrency, formatArea } from '../utils/format.js';
+import { formatCurrency, formatArea, listingKind } from '../utils/format.js';
 
 export function PropertyCard({ listing }) {
   const image = listing.coverImage ?? listing.images?.[0];
@@ -8,7 +8,7 @@ export function PropertyCard({ listing }) {
   return (
     <Link
       to={`/listings/${listing.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-navy-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+      className="group flex min-w-0 flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-navy-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-navy-100">
         {image ? (
@@ -46,6 +46,7 @@ export function PropertyCard({ listing }) {
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
           <h3 className="font-display text-lg font-semibold leading-snug text-navy-900">{listing.title}</h3>
+          {listingKind(listing) && <p className="mt-0.5 text-xs font-medium text-gold-600">{listingKind(listing)}{listing.furnished ? ' · Furnished' : ''}</p>}
           {(listing.city || listing.neighborhood) && (
             <p className="mt-1 flex items-center gap-1 text-sm text-navy-500">
               <MapPin size={14} className="shrink-0" aria-hidden="true" />
@@ -54,7 +55,16 @@ export function PropertyCard({ listing }) {
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-4 border-t border-navy-100 pt-3 text-sm text-navy-600">
+        {listing.amenities?.length > 0 && (
+          <ul className="flex flex-wrap gap-1.5">
+            {listing.amenities.slice(0, 3).map((a) => (
+              <li key={a} className="max-w-full truncate rounded-full bg-navy-50 px-2.5 py-0.5 text-xs text-navy-600">{a}</li>
+            ))}
+            {listing.amenities.length > 3 && <li className="rounded-full bg-navy-50 px-2.5 py-0.5 text-xs text-navy-500">+{listing.amenities.length - 3} more</li>}
+          </ul>
+        )}
+
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-navy-100 pt-3 text-sm text-navy-600">
           {listing.bedrooms > 0 && (
             <span className="flex items-center gap-1.5">
               <BedDouble size={16} className="text-navy-400" aria-hidden="true" />
