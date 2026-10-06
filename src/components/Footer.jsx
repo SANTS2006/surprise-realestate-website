@@ -38,8 +38,9 @@ export function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Explore</h3>
             <ul className="mt-4 flex flex-col gap-2.5 text-sm">
               <li><Link to="/listings" className="hover:text-gold-300">All listings</Link></li>
-              <li><Link to="/listings?type=House" className="hover:text-gold-300">Houses</Link></li>
-              <li><Link to="/listings?type=Apartment" className="hover:text-gold-300">Apartments</Link></li>
+              <li><Link to="/listings?kind=whole" className="hover:text-gold-300">Whole properties</Link></li>
+              <li><Link to="/listings?kind=building" className="hover:text-gold-300">Whole buildings</Link></li>
+              <li><Link to="/listings?kind=unit" className="hover:text-gold-300">Units &amp; rooms</Link></li>
               <li><Link to="/about" className="hover:text-gold-300">About us</Link></li>
               <li><Link to="/agents" className="hover:text-gold-300">Our agents</Link></li>
             </ul>

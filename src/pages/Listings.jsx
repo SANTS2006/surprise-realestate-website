@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { LayoutGrid, MapIcon, SlidersHorizontal, X, SearchX } from 'lucide-react';
+import { LayoutGrid, MapIcon, SlidersHorizontal, X, SearchX, Search, Check } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { listingsApi } from '../api/listings.js';
 import { PropertyCard } from '../components/PropertyCard.jsx';
@@ -15,43 +15,149 @@ const SORTS = [
   { value: 'price-desc', label: 'Price: high to low' },
 ];
 
+const KINDS = [
+  { value: '', label: 'Everything' },
+  { value: 'whole', label: 'Whole property', hint: 'A house, villa or shop on its own' },
+  { value: 'building', label: 'Whole building', hint: 'A building in a compound' },
+  { value: 'unit', label: 'Unit or room', hint: 'A flat, room or shop in a building' },
+];
+
+const FILTER_KEYS = ['q', 'kind', 'neighborhood', 'type', 'minPrice', 'maxPrice', 'minBeds', 'minBaths', 'furnished', 'amenities'];
+
+const selectClass = 'mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none';
+const labelClass = 'text-xs font-semibold uppercase tracking-wide text-navy-500';
+
+// A text/number box that applies its value shortly after typing stops, so the
+// results update as you type without a request on every keystroke.
+function DebouncedInput({ value, onCommit, ...props }) {
+  const [text, setText] = useState(value);
+  const first = useRef(true);
+  useEffect(() => { setText(value); }, [value]);
+  useEffect(() => {
+    if (first.current) { first.current = false; return undefined; }
+    if (text === value) return undefined;
+    const t = setTimeout(() => onCommit(text), 450);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+  return <input value={text} onChange={(e) => setText(e.target.value)} {...props} />;
+}
+
 // Declared at module scope (not inside Listings) so it isn't re-created —
 // and every filter input's focus/state reset — on every render.
-function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTypes, activeFilterCount, setFilter, clearFilters }) {
+function FilterControls({ values, options, activeFilterCount, setFilter, clearFilters }) {
   const id = useId();
+  const chosenAmenities = values.amenities ? values.amenities.split(',') : [];
+  const toggleAmenity = (name) => {
+    const next = new Set(chosenAmenities);
+    if (next.has(name)) next.delete(name); else next.add(name);
+    setFilter('amenities', [...next].join(','));
+  };
+  const kinds = options.kinds ?? {};
+  const bedChoices = Array.from({ length: Math.min(Math.max(options.maxBedrooms ?? 5, 1), 8) }, (_, i) => i + 1);
+
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <label htmlFor={`${id}-neighborhood`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Neighborhood</label>
-        <select id={`${id}-neighborhood`} value={neighborhood} onChange={(e) => setFilter('neighborhood', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-q`} className={labelClass}>Search</label>
+        <div className="relative mt-1.5">
+          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy-400" aria-hidden="true" />
+          <DebouncedInput id={`${id}-q`} type="search" value={values.q} onCommit={(v) => setFilter('q', v)} placeholder="Name, street, area…" className="h-10 w-full rounded-lg border border-navy-200 bg-white pl-9 pr-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none" />
+        </div>
+      </div>
+
+      <fieldset>
+        <legend className={labelClass}>What are you looking for?</legend>
+        <div className="mt-1.5 flex flex-col gap-1.5">
+          {KINDS.filter((k) => !k.value || kinds[k.value] > 0 || values.kind === k.value).map((k) => {
+            const on = values.kind === k.value;
+            return (
+              <button
+                key={k.value || 'all'}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setFilter('kind', k.value)}
+                className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${on ? 'border-navy-800 bg-navy-900 text-white' : 'border-navy-200 bg-white text-navy-700 hover:bg-navy-50'}`}
+              >
+                <span className="min-w-0">
+                  <span className="block font-medium">{k.label}</span>
+                  {k.hint && <span className={`block truncate text-xs ${on ? 'text-white/70' : 'text-navy-400'}`}>{k.hint}</span>}
+                </span>
+                {k.value && kinds[k.value] != null && <span className={`shrink-0 text-xs ${on ? 'text-white/80' : 'text-navy-400'}`}>{kinds[k.value]}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <div>
+        <label htmlFor={`${id}-neighborhood`} className={labelClass}>Neighborhood</label>
+        <select id={`${id}-neighborhood`} value={values.neighborhood} onChange={(e) => setFilter('neighborhood', e.target.value)} className={selectClass}>
           <option value="">All neighborhoods</option>
-          {cities.map((n) => <option key={n} value={n}>{n}</option>)}
+          {(options.cities ?? []).map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </div>
       <div>
-        <label htmlFor={`${id}-type`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Property type</label>
-        <select id={`${id}-type`} value={type} onChange={(e) => setFilter('type', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
+        <label htmlFor={`${id}-type`} className={labelClass}>Property type</label>
+        <select id={`${id}-type`} value={values.type} onChange={(e) => setFilter('type', e.target.value)} className={selectClass}>
           <option value="">All types</option>
-          {unitTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+          {(options.unitTypes ?? []).map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
+
       <div>
-        <label htmlFor={`${id}-maxPrice`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Max monthly rent</label>
-        <select id={`${id}-maxPrice`} value={maxPrice} onChange={(e) => setFilter('maxPrice', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
-          <option value="">Any budget</option>
-          <option value="1500">Up to Sle 1,500</option>
-          <option value="2500">Up to Sle 2,500</option>
-          <option value="4000">Up to Sle 4,000</option>
-          <option value="10000">Up to Sle 10,000</option>
-        </select>
+        <p className={labelClass}>Monthly rent</p>
+        <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <DebouncedInput type="number" min="0" inputMode="numeric" aria-label="Minimum monthly rent" value={values.minPrice} onCommit={(v) => setFilter('minPrice', v)} placeholder={options.priceRange?.min != null ? `Min ${Math.floor(options.priceRange.min)}` : 'Min'} className="h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none" />
+          <DebouncedInput type="number" min="0" inputMode="numeric" aria-label="Maximum monthly rent" value={values.maxPrice} onCommit={(v) => setFilter('maxPrice', v)} placeholder={options.priceRange?.max != null ? `Max ${Math.ceil(options.priceRange.max)}` : 'Max'} className="h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none" />
+        </div>
       </div>
-      <div>
-        <label htmlFor={`${id}-minBeds`} className="text-xs font-semibold uppercase tracking-wide text-navy-500">Minimum bedrooms</label>
-        <select id={`${id}-minBeds`} value={minBeds} onChange={(e) => setFilter('minBeds', e.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none">
-          <option value="">Any</option>
-          {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
-        </select>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor={`${id}-minBeds`} className={labelClass}>Bedrooms</label>
+          <select id={`${id}-minBeds`} value={values.minBeds} onChange={(e) => setFilter('minBeds', e.target.value)} className={selectClass}>
+            <option value="">Any</option>
+            {bedChoices.map((n) => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor={`${id}-minBaths`} className={labelClass}>Bathrooms</label>
+          <select id={`${id}-minBaths`} value={values.minBaths} onChange={(e) => setFilter('minBaths', e.target.value)} className={selectClass}>
+            <option value="">Any</option>
+            {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
       </div>
+
+      <label className="flex items-center gap-2 text-sm text-navy-700">
+        <input type="checkbox" checked={values.furnished === 'true'} onChange={(e) => setFilter('furnished', e.target.checked ? 'true' : '')} className="h-4 w-4 rounded border-navy-300 text-navy-800 focus:ring-navy-400" />
+        Furnished only
+      </label>
+
+      {(options.amenities ?? []).length > 0 && (
+        <fieldset>
+          <legend className={labelClass}>Facilities</legend>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {options.amenities.map((name) => {
+              const on = chosenAmenities.includes(name);
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggleAmenity(name)}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${on ? 'border-navy-800 bg-navy-900 text-white' : 'border-navy-200 bg-white text-navy-600 hover:bg-navy-50'}`}
+                >
+                  {on && <Check size={12} aria-hidden="true" />}
+                  {name}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
+
       {activeFilterCount > 0 && (
         <button type="button" onClick={clearFilters} className="flex items-center justify-center gap-1.5 rounded-lg border border-navy-200 py-2 text-sm font-medium text-navy-600 hover:bg-navy-50">
           <X size={14} aria-hidden="true" />
@@ -63,22 +169,20 @@ function FilterControls({ neighborhood, type, maxPrice, minBeds, cities, unitTyp
 }
 
 export default function Listings() {
-  useDocumentTitle('Listings', 'Browse all available houses and apartments for rent — filter by neighborhood, property type, budget, and bedrooms.');
+  useDocumentTitle('Listings', 'Browse all available houses, buildings and apartments for rent — filter by neighborhood, kind of property, budget, bedrooms, bathrooms and facilities.');
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [listings, setListings] = useState(null);
   const [meta, setMeta] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 1 });
-  const [filterOptions, setFilterOptions] = useState({ cities: [], unitTypes: [] });
+  const [filterOptions, setFilterOptions] = useState({ cities: [], unitTypes: [], amenities: [], kinds: {} });
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
 
-  const neighborhood = searchParams.get('neighborhood') ?? '';
-  const type = searchParams.get('type') ?? '';
-  const maxPrice = searchParams.get('maxPrice') ?? '';
-  const minBeds = searchParams.get('minBeds') ?? '';
+  const values = Object.fromEntries(FILTER_KEYS.map((k) => [k, searchParams.get(k) ?? '']));
   const sort = searchParams.get('sort') ?? 'newest';
+  const neighborhood = values.neighborhood;
 
   const setFilter = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -93,17 +197,19 @@ export default function Listings() {
     listingsApi.filterOptions().then((res) => setFilterOptions(res.data)).catch(() => {});
   }, []);
 
+  const query = searchParams.toString();
   const load = useCallback(() => {
     setError(null);
-    listingsApi.list({ page, pageSize: 21, neighborhood, type, maxPrice, minBeds, sort })
+    const params = Object.fromEntries(new URLSearchParams(query));
+    listingsApi.list({ ...params, page, pageSize: 21, sort: params.sort ?? 'newest' })
       .then((res) => { setListings(res.data); setMeta(res.meta); })
       .catch((err) => setError(err.message));
-  }, [page, neighborhood, type, maxPrice, minBeds, sort]);
+  }, [page, query]);
 
   useEffect(() => { load(); }, [load]);
 
-  const activeFilterCount = [neighborhood, type, maxPrice, minBeds].filter(Boolean).length;
-  const filterProps = { neighborhood, type, maxPrice, minBeds, cities: filterOptions.cities, unitTypes: filterOptions.unitTypes, activeFilterCount, setFilter, clearFilters };
+  const activeFilterCount = FILTER_KEYS.filter((k) => values[k]).length;
+  const filterProps = { values, options: filterOptions, activeFilterCount, setFilter, clearFilters };
 
   return (
     <div className="bg-navy-50/40 pb-20 pt-28">

@@ -1,8 +1,7 @@
 import { apiClient } from './client.js';
 
 export const listingsApi = {
-  list: ({ page, pageSize, neighborhood, type, maxPrice, minBeds, sort } = {}) =>
-    apiClient.get('/listings', { page, pageSize, neighborhood, type, maxPrice, minBeds, sort }),
+  list: (params = {}) => apiClient.get('/listings', params),
   get: (id) => apiClient.get(`/listings/${id}`),
   filterOptions: () => apiClient.get('/listings/filter-options'),
   agents: () => apiClient.get('/agents'),
