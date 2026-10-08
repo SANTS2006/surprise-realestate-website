@@ -8,6 +8,8 @@ import Home from './pages/Home.jsx';
 // the bulk of the bundle, and most visitors never touch most pages.
 const Listings = lazy(() => import('./pages/Listings.jsx'));
 const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'));
+const Lands = lazy(() => import('./pages/Lands.jsx'));
+const LandDetail = lazy(() => import('./pages/LandDetail.jsx'));
 const About = lazy(() => import('./pages/About.jsx'));
 const Agents = lazy(() => import('./pages/Agents.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/listings" element={<Lazy Component={Listings} />} />
         <Route path="/listings/:id" element={<Lazy Component={PropertyDetail} />} />
+        <Route path="/lands" element={<Lazy Component={Lands} />} />
+        <Route path="/lands/:id" element={<Lazy Component={LandDetail} />} />
         <Route path="/about" element={<Lazy Component={About} />} />
         <Route path="/agents" element={<Lazy Component={Agents} />} />
         <Route path="/contact" element={<Lazy Component={Contact} />} />

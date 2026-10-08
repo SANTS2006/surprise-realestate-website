@@ -22,6 +22,12 @@ const KINDS = [
   { value: 'unit', label: 'Unit or room', hint: 'A flat, room or shop in a building' },
 ];
 
+const OFFERS = [
+  { value: 'rent', label: 'Rent', hint: 'Pay monthly' },
+  { value: 'buy', label: 'Buy', hint: 'Own it' },
+  { value: 'lease', label: 'Lease', hint: 'Long term' },
+];
+
 const FILTER_KEYS = ['q', 'kind', 'neighborhood', 'type', 'minPrice', 'maxPrice', 'minBeds', 'minBaths', 'furnished', 'amenities'];
 
 const selectClass = 'mt-1.5 h-10 w-full rounded-lg border border-navy-200 bg-white px-3 text-sm text-navy-800 focus:border-navy-400 focus:outline-none';
@@ -182,7 +188,18 @@ export default function Listings() {
 
   const values = Object.fromEntries(FILTER_KEYS.map((k) => [k, searchParams.get(k) ?? '']));
   const sort = searchParams.get('sort') ?? 'newest';
+  const offer = ['rent', 'buy', 'lease'].includes(searchParams.get('offer')) ? searchParams.get('offer') : 'rent';
   const neighborhood = values.neighborhood;
+
+  // Prices differ per way of offering, so switching clears the price range.
+  const switchOffer = (value) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('offer', value);
+    next.delete('minPrice');
+    next.delete('maxPrice');
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  };
 
   const setFilter = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -194,17 +211,17 @@ export default function Listings() {
   const clearFilters = () => { setSearchParams({}, { replace: true }); setPage(1); };
 
   useEffect(() => {
-    listingsApi.filterOptions().then((res) => setFilterOptions(res.data)).catch(() => {});
-  }, []);
+    listingsApi.filterOptions(offer).then((res) => setFilterOptions(res.data)).catch(() => {});
+  }, [offer]);
 
   const query = searchParams.toString();
   const load = useCallback(() => {
     setError(null);
     const params = Object.fromEntries(new URLSearchParams(query));
-    listingsApi.list({ ...params, page, pageSize: 21, sort: params.sort ?? 'newest' })
+    listingsApi.list({ ...params, offer, page, pageSize: 21, sort: params.sort ?? 'newest' })
       .then((res) => { setListings(res.data); setMeta(res.meta); })
       .catch((err) => setError(err.message));
-  }, [page, query]);
+  }, [page, query, offer]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -216,9 +233,25 @@ export default function Listings() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-3xl font-semibold text-navy-900 sm:text-4xl">
-            {neighborhood ? `Listings in ${neighborhood}` : 'All listings'}
+            {neighborhood ? `Listings in ${neighborhood}` : offer === 'buy' ? 'Houses for sale' : offer === 'lease' ? 'Houses for lease' : 'Houses for rent'}
           </h1>
           <p className="text-sm text-navy-500">{meta.total} {meta.total === 1 ? 'property' : 'properties'} available</p>
+        </div>
+
+        <div role="tablist" aria-label="How do you want it?" className="mt-6 grid max-w-xl grid-cols-3 gap-2 rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-navy-100">
+          {OFFERS.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              role="tab"
+              aria-selected={offer === o.value}
+              onClick={() => switchOffer(o.value)}
+              className={`flex min-w-0 flex-col items-center rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${offer === o.value ? 'bg-navy-900 text-white' : 'text-navy-600 hover:bg-navy-50'}`}
+            >
+              {o.label}
+              <span className={`text-[11px] font-normal ${offer === o.value ? 'text-white/70' : 'text-navy-400'}`}>{o.hint}</span>
+            </button>
+          ))}
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr]">

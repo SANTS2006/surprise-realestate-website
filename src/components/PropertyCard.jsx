@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BedDouble, Bath, Ruler, MapPin, Home } from 'lucide-react';
-import { formatCurrency, formatArea, listingKind } from '../utils/format.js';
+import { formatPrice, formatArea, listingKind } from '../utils/format.js';
 
 export function PropertyCard({ listing }) {
   const image = listing.coverImage ?? listing.images?.[0];
@@ -37,8 +37,7 @@ export function PropertyCard({ listing }) {
         </div>
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/80 via-navy-950/10 to-transparent px-4 py-3">
           <p className="font-display text-xl font-semibold text-white">
-            {formatCurrency(listing.price, { rounded: true })}
-            <span className="text-sm font-sans font-normal text-white/70"> /month</span>
+            {formatPrice(listing)}
           </p>
         </div>
       </div>

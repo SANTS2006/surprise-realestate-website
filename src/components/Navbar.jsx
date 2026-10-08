@@ -9,7 +9,8 @@ import { ThemeToggle } from './ThemeToggle.jsx';
 
 const LINKS = [
   { to: '/', label: 'Home' },
-  { to: '/listings', label: 'Listings' },
+  { to: '/listings', label: 'Houses' },
+  { to: '/lands', label: 'Lands' },
   { to: '/about', label: 'About' },
   { to: '/agents', label: 'Agents' },
   { to: '/contact', label: 'Contact' },
@@ -35,7 +36,7 @@ export function Navbar() {
   return (
     <header
       className={clsx(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+        'fixed inset-x-0 top-[var(--maintenance-offset,0px)] z-50 transition-all duration-300',
         transparent ? 'bg-transparent py-5' : 'bg-white/95 py-3 shadow-sm backdrop-blur-md'
       )}
     >

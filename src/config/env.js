@@ -17,3 +17,15 @@ export const PORTAL_LOGIN_URL = `${APP_URL}/${ORG_SLUG}/login`;
 // Sends the visitor to register (or sign in) and have this unit added under
 // their tenant account.
 export const rentUrl = (unitId) => `${APP_URL}/${ORG_SLUG}/rent?unit=${unitId}`;
+
+// Where the platform reports whether it is under maintenance.
+export const SYSTEM_STATUS_URL = `${PUBLIC_API}/system-status`;
+
+// Sends the visitor to sign in / register and then rent, buy or lease a house
+// (kind: 'rent' | 'buy' | 'lease'), or buy a land.
+export const dealUrl = (kind, { unitId, landId }) => {
+  const params = new URLSearchParams();
+  if (landId) params.set('land', landId); else params.set('unit', unitId);
+  params.set('kind', kind);
+  return `${APP_URL}/${ORG_SLUG}/rent?${params.toString()}`;
+};

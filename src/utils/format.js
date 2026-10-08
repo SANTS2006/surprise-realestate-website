@@ -21,3 +21,9 @@ export function listingKind(listing) {
   if (listing.buildingName) return `${listing.buildingName} · Unit ${listing.unitNumber}`;
   return listing.unitNumber ? `Unit ${listing.unitNumber}` : '';
 }
+
+// "Sle 1,200 /month", "Sle 50,000", "Sle 6,000 /year" — depending on how the place is offered.
+export const PRICE_SUFFIX = { month: ' /month', year: ' /year', total: '' };
+export function formatPrice(listing, options = { rounded: true }) {
+  return `${formatCurrency(listing.price, options)}${PRICE_SUFFIX[listing.priceUnit] ?? ''}`;
+}

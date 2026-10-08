@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Navbar } from '../components/Navbar.jsx';
 import { Footer } from '../components/Footer.jsx';
 import { FloatingActions } from '../components/FloatingActions.jsx';
+import { MaintenanceBanner } from '../components/MaintenanceBanner.jsx';
 
 export function PublicLayout() {
   const { pathname } = useLocation();
@@ -12,7 +13,8 @@ export function PublicLayout() {
   }, [pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white" style={{ paddingTop: 'var(--maintenance-offset, 0px)' }}>
+      <MaintenanceBanner />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-navy-900 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"

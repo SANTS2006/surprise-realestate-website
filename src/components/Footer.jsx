@@ -38,6 +38,8 @@ export function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Explore</h3>
             <ul className="mt-4 flex flex-col gap-2.5 text-sm">
               <li><Link to="/listings" className="hover:text-gold-300">All listings</Link></li>
+              <li><Link to="/lands" className="hover:text-gold-300">Lands for sale</Link></li>
+              <li><Link to="/listings?offer=buy" className="hover:text-gold-300">Houses for sale</Link></li>
               <li><Link to="/listings?kind=whole" className="hover:text-gold-300">Whole properties</Link></li>
               <li><Link to="/listings?kind=building" className="hover:text-gold-300">Whole buildings</Link></li>
               <li><Link to="/listings?kind=unit" className="hover:text-gold-300">Units &amp; rooms</Link></li>

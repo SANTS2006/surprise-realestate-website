@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import {
-  BedDouble, Bath, Ruler, MapPin, Calendar, Phone, Mail, Check, Wallet, Sofa, Layers, Building2,
+  BedDouble, Bath, Ruler, MapPin, Calendar, Phone, Mail, Check, Wallet, Sofa, Layers, Building2, ShoppingCart, KeyRound, FileSignature,
   ChevronLeft, ChevronRight, ArrowLeft, Home,
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { useStructuredData } from '../hooks/useStructuredData.js';
 import { listingsApi } from '../api/listings.js';
-import { rentUrl } from '../config/env.js';
-import { formatCurrency, formatArea, listingKind } from '../utils/format.js';
+import { dealUrl } from '../config/env.js';
+import { formatCurrency, formatPrice, formatArea, listingKind } from '../utils/format.js';
 import { MapView } from '../components/MapView.jsx';
 import { LoadingState } from '../components/LoadingState.jsx';
 import { PropertyCard } from '../components/PropertyCard.jsx';
@@ -148,7 +148,7 @@ export default function PropertyDetail() {
   const [similar, setSimilar] = useState([]);
 
   const description = listing
-    ? `${listing.title} in ${listing.city ?? 'a great location'} — ${listing.bedrooms > 0 ? `${listing.bedrooms} bed, ` : ''}${listing.bathrooms} bath, ${formatCurrency(listing.price, { rounded: true })}/month.`
+    ? `${listing.title} in ${listing.city ?? 'a great location'} — ${listing.bedrooms > 0 ? `${listing.bedrooms} bed, ` : ''}${listing.bathrooms} bath, ${formatPrice(listing)}.`
     : undefined;
   useDocumentTitle(listing ? listing.title : 'Listing', description);
   useStructuredData(listing && {
@@ -161,7 +161,6 @@ export default function PropertyDetail() {
     floorSize: listing.area != null ? { '@type': 'QuantitativeValue', value: listing.area, unitCode: 'MTK' } : undefined,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: listing.address,
       addressLocality: listing.city,
       addressRegion: listing.region || undefined,
       addressCountry: listing.country,
@@ -209,16 +208,15 @@ export default function PropertyDetail() {
               {listingKind(listing) && <span className="rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold text-navy-900">{listingKind(listing)}</span>}
             </div>
             <h1 className="mt-3 font-display text-3xl font-semibold text-navy-900 sm:text-4xl">{listing.title}</h1>
-            {listing.address && (
+            {(listing.city || listing.region) && (
               <p className="mt-1.5 flex items-center gap-1.5 text-sm text-navy-500">
                 <MapPin size={15} aria-hidden="true" />
-                {listing.address}
+                {[listing.city, listing.region].filter(Boolean).join(', ')}
               </p>
             )}
           </div>
           <p className="font-display text-3xl font-semibold text-navy-900 sm:text-right">
-            {formatCurrency(listing.price, { rounded: true })}
-            <span className="text-base font-sans font-normal text-navy-400"> /month</span>
+            {formatPrice(listing)}
           </p>
         </ScrollReveal>
 
@@ -302,9 +300,9 @@ export default function PropertyDetail() {
 
             <ScrollReveal>
               <h2 className="font-display text-xl font-semibold text-navy-900">Location</h2>
-              {listing.address && <p className="mt-1 text-sm text-navy-500">{listing.address}</p>}
+              {(listing.city || listing.region) && <p className="mt-1 text-sm text-navy-500">{[listing.city, listing.region].filter(Boolean).join(', ')} · approximate area on the map</p>}
               <div className="mt-4">
-                <MapView single={{ lat: listing.lat, lng: listing.lng, title: listing.title }} height={360} className="overflow-hidden rounded-2xl ring-1 ring-navy-100" />
+                <MapView single={{ lat: listing.lat, lng: listing.lng, title: listing.title }} zoom={13} height={360} className="overflow-hidden rounded-2xl ring-1 ring-navy-100" />
               </div>
             </ScrollReveal>
           </div>
@@ -326,13 +324,27 @@ export default function PropertyDetail() {
                   </div>
                 </>
               )}
-              <a
-                href={rentUrl(listing.id)}
-                className="mb-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-navy-900 text-sm font-semibold text-white transition-colors hover:bg-navy-800"
-              >
-                <Home size={16} aria-hidden="true" />
-                {listing.isWhole ? 'Rent this property' : 'Rent this unit'}
-              </a>
+              <div className="mb-5 flex flex-col gap-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-navy-400">How would you like it?</p>
+                {listing.offers.rent != null && (
+                  <a href={dealUrl('rent', { unitId: listing.id })} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-800">
+                    <span className="flex items-center gap-2"><KeyRound size={16} aria-hidden="true" />Rent</span>
+                    <span className="text-right font-normal text-white/80">{formatCurrency(listing.offers.rent, { rounded: true })} /month</span>
+                  </a>
+                )}
+                {listing.offers.buy != null && (
+                  <a href={dealUrl('buy', { unitId: listing.id })} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-gold-400 px-4 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-gold-300">
+                    <span className="flex items-center gap-2"><ShoppingCart size={16} aria-hidden="true" />Buy</span>
+                    <span className="text-right font-medium">{formatCurrency(listing.offers.buy, { rounded: true })}</span>
+                  </a>
+                )}
+                {listing.offers.lease && (
+                  <a href={dealUrl('lease', { unitId: listing.id })} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border border-navy-300 bg-white px-4 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-navy-50">
+                    <span className="flex items-center gap-2"><FileSignature size={16} aria-hidden="true" />Lease</span>
+                    <span className="text-right font-normal text-navy-600">{formatCurrency(listing.offers.lease.price, { rounded: true })} /year · {listing.offers.lease.termMonths} mo</span>
+                  </a>
+                )}
+              </div>
               <div className={listing.agent ? 'mt-5 border-t border-navy-100 pt-5' : 'border-t border-navy-100 pt-5'}>
                 <p className="mb-3 text-sm font-semibold text-navy-900">Or ask a question first</p>
                 <InquiryForm listing={listing} />
