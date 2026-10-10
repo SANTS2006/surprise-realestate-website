@@ -11,7 +11,7 @@ export const API_URL = `${PUBLIC_API}/orgs/${ORG_SLUG}`;
 
 // The company's real estate system (a separate app): the Navbar's Sign In
 // button and the "Rent this unit" button link out to it.
-export const APP_URL = (import.meta.env.VITE_APP_URL || 'https://surprise-real-estate.onrender.com').replace(/\/$/, '');
+export const APP_URL = (import.meta.env.VITE_APP_URL || 'https://ntsrealestate.onrender.com').replace(/\/$/, '');
 export const PORTAL_LOGIN_URL = `${APP_URL}/${ORG_SLUG}/login`;
 
 // Sends the visitor to register (or sign in) and have this unit added under
